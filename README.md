@@ -1,34 +1,30 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Share-your-backpack project
 
-## Getting Started
+The idea of this project is to build a funnel that helps to define what to put into the backpack for your next hyke, AND share it with the community
 
-First, run the development server:
+## Composition of the steps:
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+1. Choose the sport (hyking, cycling, mountaneering etc.), first release will be only hyking and gravel cycling;
+2. Choose how many days you want to spend outside, the description of the hyke and the itinerary, this is helpful in order to find similar hykes and compare your gear!
+3. fill the parts that you need to bring with you, from the macro categories defined (i.e. eat, sleep, apparel, apparel, first aid, gear, etc.)
+   For each macro category there is a list of hints that you can get, but you can also add your own staff
+   Going to the next step only the selected and newly added staff will be added to the actual list
+4. At every step you can return back and make changes
+5. At the end of the funnel you can export the list created in different formats, i.e. send via email, print or export as text, OR saved through an api call.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### improvements
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+You should set if you still need to buy the item and add a link to the item;
+You should be able to add an image of the gear selected;
+There should be the possibility to add or modify the name of the macro categories defined, the ones listed should be only a starting point;
+For each sport there should be the possibility to view different lists from other people, similar to the one created by us. That's what Share Your Backpack is all about in the very end!
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+### How the project is structured
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+The project is based on the [Next.js](https://nextjs.org/) framework.
 
-## Learn More
+The components are built upon React and Typescript, following the [atomic design pattern](https://atomicdesign.bradfrost.com/chapter-2/#the-atomic-design-methodology)
 
-To learn more about Next.js, take a look at the following resources:
+UI library: [Mantine](https://mantine.dev/), developed mobile first
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+State management: [Redux](https://redux.js.org/)
