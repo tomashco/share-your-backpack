@@ -1,21 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import Layout from '../components/Layout';
 
-function AboutPage() {
-  const [content, setContent] = useState('');
-  useEffect(() => {
-    fetch('./README.md')
-      .then((res) => res.text())
-      .then((text) => setContent(text));
-  }, []);
+function AboutPage(props) {
+  const { content } = props;
 
   return (
     <Layout title="About | Next.js + TypeScript Example">
       <h1>About</h1>
-      <ReactMarkdown>{content}</ReactMarkdown>
+      <ReactMarkdown>{content.default}</ReactMarkdown>
       <p>
         <Link href="/" passHref>
           <a href="home">Go home</a>
@@ -24,5 +19,11 @@ function AboutPage() {
     </Layout>
   );
 }
+
+AboutPage.getInitialProps = async () => {
+  // eslint-disable-next-line global-require
+  const content = await require('../README.md');
+  return { content };
+};
 
 export default AboutPage;
