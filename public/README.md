@@ -6,7 +6,7 @@ The idea of this project is to build a funnel that helps to define what to put i
 
 1. Choose the sport (hyking, cycling, mountaneering etc.), first release will be only hyking and gravel cycling;
 2. Choose how many days you want to spend outside, the description of the hyke and the itinerary, this is helpful in order to find similar hykes and compare your gear!
-3. fill the parts that you need to bring with you, from the macro categories defined (i.e. eat, sleep, apparel, apparel, first aid, gear, etc.)
+3. fill the parts that you need to bring with you, from the macro categories defined (i.e. eat, sleep, apparel, first aid, gear, etc.)
    For each macro category there is a list of hints that you can get, but you can also add your own staff
    Going to the next step only the selected and newly added staff will be added to the actual list
 4. At every step you can return back and make changes
@@ -21,10 +21,6 @@ For each sport there should be the possibility to view different lists from othe
 
 ### How the project is structured
 
-The project is based on the [Next.js](https://nextjs.org/) framework.
-
-The components are built upon React and Typescript, following the [atomic design pattern](https://atomicdesign.bradfrost.com/chapter-2/#the-atomic-design-methodology)
-
-UI library: [Mantine](https://mantine.dev/), developed mobile first
-
+The project is built on [Next.js](https://nextjs.org/) framework.
+The components are built upon React and Typescript, using Tailwind CSS as styling framework, using esLint to enforce coding style.
 State management: [Redux](https://redux.js.org/)
