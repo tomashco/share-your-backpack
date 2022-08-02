@@ -9,8 +9,10 @@ function AboutPage(props) {
 
   return (
     <Layout title="About | Next.js + TypeScript Example">
+
       <h1>About</h1>
       <ReactMarkdown>{content.default}</ReactMarkdown>
+
       <p>
         <Link href="/" passHref>
           <a href="home">Go home</a>

@@ -9,13 +9,14 @@ type Props = {
 
 function Layout({ children, title = 'This is the default title' }: Props) {
   return (
-    <div>
+
+    <div className="flex flex-col min-h-screen bg-red-300">
       <Head>
         <title>{title}</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <header>
+      <header className="flex flex-col flex-0 h-24">
         <nav>
           <Link href="/" passHref>
             <a href="home">Home</a>
@@ -38,8 +39,10 @@ function Layout({ children, title = 'This is the default title' }: Props) {
           <Link href="/api/users">Users API</Link>
         </nav>
       </header>
-      {children}
-      <footer>
+      <div className="flex flex-col flex-1 prose">
+        {children}
+      </div>
+      <footer className="flex flex-col flex-0 h-24">
         <hr />
         <span>I&apos;m here to stay (Footer)</span>
       </footer>
