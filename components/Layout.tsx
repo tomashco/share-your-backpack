@@ -10,13 +10,13 @@ type Props = {
 function Layout({ children, title = 'This is the default title' }: Props) {
   return (
 
-    <div className="flex flex-col min-h-screen bg-red-300">
+    <div className="flex flex-col min-h-screen bg-red-300 items-center">
       <Head>
         <title>{title}</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <header className="flex flex-col flex-0 h-24">
+      <header className="flex flex-col flex-0 h-24 w-screen flex items-center">
         <nav>
           <Link href="/" passHref>
             <a href="home">Home</a>
@@ -42,7 +42,7 @@ function Layout({ children, title = 'This is the default title' }: Props) {
       <div className="flex flex-col flex-1 prose">
         {children}
       </div>
-      <footer className="flex flex-col flex-0 h-24">
+      <footer className="flex flex-col flex-0 h-24 w-screen">
         <hr />
         <span>I&apos;m here to stay (Footer)</span>
       </footer>
