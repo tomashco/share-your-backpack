@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Button from './atoms/Button';
+import InputAddItem from './molecules/InputAddItem';
 
 function AddItem() {
   const handleSubmit = () => null;
@@ -9,12 +10,7 @@ function AddItem() {
       <h2>
         What needs to be inserted?
       </h2>
-      <input
-        type="text"
-        id="new-todo-input"
-        name="text"
-      />
-      <Button text="Add" onSubmit={handleSubmit} />
+      <InputAddItem handleSubmit={handleSubmit} inputId="new-todo-input" buttonText="Add" />
     </form>
   );
 }
