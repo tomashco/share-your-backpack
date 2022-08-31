@@ -10,9 +10,9 @@ export type InputAddItemProps = {
 
 function InputAddItem({ handleSubmit, inputId, buttonText }: InputAddItemProps) {
   return (
-    <div className="">
-      <Input type="text" inputId={inputId} name="addItem" required />
-      <Button text={buttonText} onSubmit={handleSubmit} />
+    <div className="flex justify-between">
+      <Input className="" type="text" inputId={inputId} name="addItem" required />
+      <Button type="primary" className="ml-3" text={buttonText} onSubmit={handleSubmit} />
     </div>
   );
 }
