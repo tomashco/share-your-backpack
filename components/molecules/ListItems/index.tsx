@@ -10,7 +10,7 @@ function ListItems({ items }: ListItemsProps) {
   return (
     <ul className="pl-0">
       {items.map((item) => (
-        <li className="flex items-center justify-between">
+        <li key={item} className="flex items-center justify-between">
           <div>
             <Input className="flex-1" type="checkbox" defaultChecked />
             <span>{item}</span>

@@ -1,14 +1,17 @@
 import React from 'react';
 
-import Layout from '../components/Layout';
-import AddNewBackpack from '../components/AddNewBackpack';
+import GenericLayout from '../components/templates/GenericLayout';
+import HomePage from '../components/pages/HomePage';
+// import AddNewBackpack from '../components/pages/AddNewBackpack';
+
+// <h1>Share Your Backpack 🎒</h1>
+//       <AddNewBackpack />
 
 function IndexPage() {
   return (
-    <Layout title="Home | Share Your backpack">
-      <h1>Share Your Backpack 🎒</h1>
-      <AddNewBackpack />
-    </Layout>
+    <GenericLayout title="Home | Share Your backpack">
+      <HomePage />
+    </GenericLayout>
   );
 }
 

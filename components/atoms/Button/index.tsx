@@ -1,10 +1,12 @@
 import * as React from 'react';
+import Link from 'next/link';
 
 type Props = {
     text: string
     type: string
     onSubmit?: (event: React.FormEvent<HTMLButtonElement>) => void
     className?: string
+    linkHref?: string
   }
 
 function getButtonType(buttonType) {
@@ -17,11 +19,17 @@ function getButtonType(buttonType) {
 }
 
 function Button({
-  text, onSubmit, className, type,
+  text, onSubmit, className, type, linkHref,
 }: Props) {
   return (
     <button type="button" onSubmit={onSubmit} className={`${getButtonType(type)} ${className}`}>
-      {text}
+      {linkHref
+        ? (
+          <Link href={linkHref} passHref>
+            <a href={linkHref}>{text}</a>
+          </Link>
+        )
+        : text }
     </button>
   );
 }

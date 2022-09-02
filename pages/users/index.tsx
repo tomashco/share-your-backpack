@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 import { User } from '../../interfaces';
 import { sampleUserData } from '../../utils/sample-data';
-import Layout from '../../components/Layout';
+import GenericLayout from '../../components/templates/GenericLayout';
 import List from '../../components/List';
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
 
 function WithStaticProps({ items }: Props) {
   return (
-    <Layout title="Users List | Next.js + TypeScript Example">
+    <GenericLayout title="Users List | Next.js + TypeScript Example">
       <h1>Users List</h1>
       <p>
         Example fetching data from inside
@@ -29,7 +29,7 @@ function WithStaticProps({ items }: Props) {
           <a href="home">Go home</a>
         </Link>
       </p>
-    </Layout>
+    </GenericLayout>
   );
 }
 
