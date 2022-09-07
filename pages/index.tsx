@@ -1,17 +1,25 @@
 import React from 'react';
-
 import GenericLayout from '../components/templates/GenericLayout';
-import HomePage from '../components/pages/HomePage';
-// import AddNewBackpack from '../components/pages/AddNewBackpack';
-
-// <h1>Share Your Backpack 🎒</h1>
-//       <AddNewBackpack />
+import HeroImage from '../components/molecules/HeroImage';
+import AddNewBackpack from '../components/pages/AddNewBackpack';
 
 function IndexPage() {
   return (
-    <GenericLayout title="Home | Share Your backpack">
-      <HomePage />
-    </GenericLayout>
+    <div>
+      <HeroImage
+        id="head"
+        title="Share Your Backpack"
+        imgPath="/images/backpackBackground.png"
+        description="A utility to showcase your best gear during the trails"
+        ctaText="Hike Now"
+        ctaHref="#start-funnel"
+      />
+      <GenericLayout title="Home | Share Your backpack">
+        <div id="start-funnel">
+          <AddNewBackpack />
+        </div>
+      </GenericLayout>
+    </div>
   );
 }
 
