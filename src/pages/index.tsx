@@ -10,10 +10,9 @@ import {
 import RootLayout from "../components/layout";
 
 export default function Home() {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
-
   const user = useUser();
 
+  const { data: posts } = api.posts.getAll.useQuery();
   return (
     <RootLayout>
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
@@ -62,7 +61,15 @@ export default function Home() {
           </Link>
         </div>
         <p className="text-2xl text-white">
-          {hello.data ? hello.data.greeting : "Loading tRPC query..."}
+          {posts ? (
+            <ul>
+              {posts.map((post) => (
+                <li key={post.id}>{post.content}</li>
+              ))}
+            </ul>
+          ) : (
+            "No posts!."
+          )}
         </p>
       </div>
     </RootLayout>
