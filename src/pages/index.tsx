@@ -1,4 +1,4 @@
-import { api } from "@/utils/api";
+import { type RouterOutputs, api } from "@/utils/api";
 import {
   UserButton,
   useUser,
@@ -11,6 +11,9 @@ import { LoadingSpinner } from "@/components/loading";
 import { useState } from "react";
 import { TrashIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { type Post } from "@prisma/client";
+import Image from "next/image";
+
+type PostWithUser = RouterOutputs["posts"]["getAll"][number];
 
 const emptyPost: Post = {
   id: "",
@@ -24,6 +27,8 @@ export default function Home() {
   const [editPostId, setEditPostId] = useState("");
   const ctx = api.useContext();
   const user = useUser();
+
+  console.log("USER: ", user);
 
   const { mutate: deletePost } = api.posts.delete.useMutation({
     onSuccess: () => {
@@ -142,37 +147,50 @@ export default function Home() {
           {!editPostId && <CreatePostWizard />}
           {posts ? (
             <ul>
-              {posts.map((post) => (
-                <>
-                  <li
-                    key={post.id}
-                    className="flex w-full items-center justify-between"
-                  >
-                    <div className="flex">
+              {posts.map((props: PostWithUser) => {
+                const { post, author } = props;
+                console.log("SINGLE POST: ", post);
+                return (
+                  <div key={post.id}>
+                    <li className="flex w-full items-center justify-between">
+                      <div className="flex items-center">
+                        {author.id !== user?.user?.id &&
+                          author.profileImageUrl && (
+                            <div className="relative m-2 h-6 w-6">
+                              <Image
+                                className="rounded-full"
+                                src={author.profileImageUrl}
+                                alt="profile photo"
+                                layout={"fill"}
+                                objectFit={"contain"}
+                              />
+                            </div>
+                          )}
+                        {post.authorId === user?.user?.id && (
+                          <span
+                            onClick={() => deletePost({ id: post.id })}
+                            className="m-2 block w-6 cursor-pointer hover:text-red-400"
+                          >
+                            <TrashIcon />
+                          </span>
+                        )}
+                        <p>{post.content}</p>
+                      </div>
                       {post.authorId === user?.user?.id && (
                         <span
-                          onClick={() => deletePost({ id: post.id })}
+                          onClick={() =>
+                            setEditPostId(editPostId === post.id ? "" : post.id)
+                          }
                           className="m-2 block w-6 cursor-pointer hover:text-red-400"
                         >
-                          <TrashIcon />
+                          <PencilIcon />
                         </span>
                       )}
-                      <p>{post.content}</p>
-                    </div>
-                    {post.authorId === user?.user?.id && (
-                      <span
-                        onClick={() =>
-                          setEditPostId(editPostId === post.id ? "" : post.id)
-                        }
-                        className="m-2 block w-6 cursor-pointer hover:text-red-400"
-                      >
-                        <PencilIcon />
-                      </span>
-                    )}
-                  </li>
-                  {post.id === editPostId && <CreatePostWizard post={post} />}
-                </>
-              ))}
+                    </li>
+                    {post.id === editPostId && <CreatePostWizard post={post} />}
+                  </div>
+                );
+              })}
             </ul>
           ) : (
             "No posts!"

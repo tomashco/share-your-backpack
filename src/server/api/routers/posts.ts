@@ -8,7 +8,33 @@ import {
 import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 import { Redis } from "@upstash/redis";
 import { TRPCError } from "@trpc/server";
+import { clerkClient } from "@clerk/nextjs";
+import { filterUserForClient } from "@/server/helpers/filterUserForClient";
+import { type Post } from "@prisma/client";
 
+const addUserDataToPosts = async (posts: Post[]) => {
+  const users = (
+    await clerkClient.users.getUserList({
+      userId: posts.map((post) => post.authorId),
+      limit: 100,
+    })
+  ).map(filterUserForClient);
+
+  return posts.map((post) => {
+    const author = users.find((user) => user.id === post.authorId);
+
+    if (!author?.id) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Author for post not found",
+      });
+    }
+    return {
+      post,
+      author,
+    };
+  });
+};
 // Create a new ratelimiter, that allows 10 requests per 10 seconds
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
@@ -23,8 +49,9 @@ const ratelimit = new Ratelimit({
 });
 
 export const postsRouter = createTRPCRouter({
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.post.findMany();
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    const posts = await ctx.prisma.post.findMany();
+    return addUserDataToPosts(posts);
   }),
   create: privateProcedure
     .input(
