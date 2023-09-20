@@ -47,4 +47,53 @@ export const postsRouter = createTRPCRouter({
       });
       return post;
     }),
+  delete: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const authorId = ctx.userId;
+
+      const { success } = await ratelimit.limit(authorId);
+
+      if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+      try {
+        await ctx.prisma.post.delete({
+          where: { id: input.id, authorId: authorId },
+        });
+      } catch (err) {
+        console.log("DELETE ERROR: ", err);
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      return "ok";
+    }),
+  edit: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        content: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const authorId = ctx.userId;
+
+      const { success } = await ratelimit.limit(authorId);
+
+      if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+      try {
+        await ctx.prisma.post.update({
+          where: { id: input.id, authorId: authorId },
+          data: {
+            authorId,
+            content: input.content,
+          },
+        });
+      } catch (err) {
+        console.log("DELETE ERROR: ", err);
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      return "ok";
+    }),
 });
