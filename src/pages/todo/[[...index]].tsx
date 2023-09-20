@@ -7,7 +7,7 @@ import { useState } from "react";
 import { TrashIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { type Post } from "@prisma/client";
 import Image from "next/image";
-import { Header } from "@/components/Header";
+import { Header } from "@/components/header";
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number];
 
