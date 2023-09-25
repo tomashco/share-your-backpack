@@ -19,29 +19,41 @@ model Post {
   @@index([authorId])
 }
 
+model Team {
+  id      Int    @id @default(autoincrement())
+  authorId    String @default(cuid())
+  name    String
+  members User[] // Many team members
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  email String @unique
+  teams Team[] // Many teams
+}
+
 model Pack {
-  id          String @id @default(cuid())
+  id          String @id @default(cuid()) @unique
   createdAt   DateTime @default(now())
-  content     String @db.VarChar(255)
-  authorId    String  @unique
+  name     String @db.VarChar(255)
+  authorId    String
   packItems   PackItem[]
-  @@index([authorId])
+  @@index([id])
 }
 
 model PackItem {
-  id         String     @id @default(cuid())
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  title      String
-  published  Boolean    @default(false)
-  pack       Pack       @relation(fields: [authorId], references: [authorId])
-  authorId   String
+  id         String     @id @default(cuid()) @unique
+  name      String
+  pack       Pack       @relation(fields: [packId], references: [id])
+  packId    String
   categories Category[]
-  @@index([authorId])
+  @@index([id])
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
+  id    String    @id @default(cuid()) @unique
   name  String
-  packItems PackItem[]
+  packItem PackItem @relation(fields: [packItemId], references: [id])
+  packItemId String
+  @@index([id])
 }
