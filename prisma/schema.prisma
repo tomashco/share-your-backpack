@@ -19,19 +19,6 @@ model Post {
   @@index([authorId])
 }
 
-model Team {
-  id      Int    @id @default(autoincrement())
-  authorId    String @default(cuid())
-  name    String
-  members User[] // Many team members
-}
-
-model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
-  teams Team[] // Many teams
-}
-
 model Pack {
   id          String @id @default(cuid()) @unique
   createdAt   DateTime @default(now())

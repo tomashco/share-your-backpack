@@ -1,6 +1,5 @@
 import { postsRouter } from "@/server/api/routers/posts";
 import { packsRouter } from "@/server/api/routers/packs";
-import { teamsRouter } from "@/server/api/routers/teams";
 import { createTRPCRouter } from "@/server/api/trpc";
 
 /**
@@ -11,7 +10,6 @@ import { createTRPCRouter } from "@/server/api/trpc";
 export const appRouter = createTRPCRouter({
   posts: postsRouter,
   packs: packsRouter,
-  team: teamsRouter,
 });
 
 // export type definition of API
