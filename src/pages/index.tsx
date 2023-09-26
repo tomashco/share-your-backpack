@@ -1,7 +1,21 @@
 import RootLayout from "@/components/layout";
 import { Header } from "@/components/header";
+import { api } from "@/utils/api";
+import toast from "react-hot-toast";
 
 export default function Home() {
+  const { mutate: createPack } = api.packs.create.useMutation({
+    onSuccess: () => null,
+    onError: (e) => {
+      const errorMessage = e.data?.code;
+      console.log("ERROR MESSAGE: ", e.data);
+      if (errorMessage) {
+        toast.error(errorMessage);
+      } else {
+        toast.error("Failed to delete! Please try again later.");
+      }
+    },
+  });
   return (
     <RootLayout>
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
@@ -13,6 +27,12 @@ export default function Home() {
             </>
           }
         />
+        <button
+          className="ml-3 w-24 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+          onClick={() => createPack({ name: "a new pack just to do" })}
+        >
+          create a pack!
+        </button>
       </div>
     </RootLayout>
   );

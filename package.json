@@ -5,6 +5,9 @@
   "scripts": {
     "build": "next build",
     "db:push": "prisma db push",
+    "localdb:start": "mysql.server start",
+    "localdb:stop": "mysql.server stop",
+    "localdb:root": "mysql -u root -p",
     "dev": "next dev",
     "postinstall": "prisma generate",
     "lint": "next lint",
