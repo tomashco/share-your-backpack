@@ -2,10 +2,16 @@ import RootLayout from "@/components/layout";
 import { Header } from "@/components/header";
 import { api } from "@/utils/api";
 import toast from "react-hot-toast";
+import { PackForm } from "@/components/PackForm";
 
 export default function Home() {
+  const { data: packs } = api.packs.getAll.useQuery();
+  const ctx = api.useContext();
+
   const { mutate: createPack } = api.packs.create.useMutation({
-    onSuccess: () => null,
+    onSuccess: () => {
+      void ctx.packs.getAll.invalidate();
+    },
     onError: (e) => {
       const errorMessage = e.data?.code;
       console.log("ERROR MESSAGE: ", e.data);
@@ -16,6 +22,7 @@ export default function Home() {
       }
     },
   });
+
   return (
     <RootLayout>
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
@@ -27,12 +34,8 @@ export default function Home() {
             </>
           }
         />
-        <button
-          className="ml-3 w-24 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-          onClick={() => createPack({ name: "a new pack just to do" })}
-        >
-          create a pack!
-        </button>
+        <PackForm />
+        {packs ? packs.map((pack) => <p key={pack.id}>{pack.name}</p>) : <></>}
       </div>
     </RootLayout>
   );

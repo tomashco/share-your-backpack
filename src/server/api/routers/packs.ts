@@ -14,6 +14,9 @@ export const packsRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string().min(1).max(200),
+        packItems: z.object({
+          name: z.string().min(1).max(200)
+        }).array().optional()
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -23,24 +26,7 @@ export const packsRouter = createTRPCRouter({
           authorId,
           name: input.name,
           packItems: {
-            create: [
-              {
-                name: "element 1",
-                categories: {
-                  create: [
-                    {
-                      name: "category 1",
-                    },
-                  ],
-                },
-              },
-              {
-                name: "element 2",
-              },
-              {
-                name: "a pillow",
-              },
-            ],
+            create: input.packItems,
           },
         },
       });

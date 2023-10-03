@@ -7,6 +7,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 
 export const Header = ({ pageTitle }: { pageTitle: ReactNode }) => {
   const user = useUser();
@@ -29,9 +30,11 @@ export const Header = ({ pageTitle }: { pageTitle: ReactNode }) => {
         <div className=" w-full" id="navbar-default">
           <ul className="flex items-center justify-end font-medium">
             <li>
-              <Link href="/todo" className="mr-3">
-                Todos
-              </Link>
+              <Button variant="link">
+                <Link href="/todo" className="mr-3">
+                  Todos
+                </Link>
+              </Button>
             </li>
             <li className="mr-3">
               <UserButton afterSignOutUrl="/" />
@@ -39,15 +42,11 @@ export const Header = ({ pageTitle }: { pageTitle: ReactNode }) => {
             <li>
               {user.isSignedIn ? (
                 <SignOutButton>
-                  <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700">
-                    Sign out
-                  </button>
+                  <Button variant="secondary">Sign out</Button>
                 </SignOutButton>
               ) : (
                 <SignInButton>
-                  <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700">
-                    Sign in!
-                  </button>
+                  <Button variant="secondary">Sign in!</Button>
                 </SignInButton>
               )}
             </li>
@@ -55,7 +54,7 @@ export const Header = ({ pageTitle }: { pageTitle: ReactNode }) => {
         </div>
       </nav>
       <div className="container flex w-screen items-center justify-end gap-12 px-4"></div>
-      <h1 className="text-primary text-center text-5xl font-extrabold tracking-tight drop-shadow-xl sm:text-[5rem]">
+      <h1 className="text-center text-5xl font-extrabold tracking-tight text-primary drop-shadow-xl sm:text-[5rem]">
         {pageTitle}
       </h1>
     </>
