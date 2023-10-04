@@ -5,10 +5,23 @@ import {
   privateProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
+import { TRPCError } from "@trpc/server";
 
 export const packsRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.pack.findMany();
+  }),
+  getById: publicProcedure.input(z.object({ id: z.string() }))
+  .query(async ({ ctx, input }) => {
+    const pack = await ctx.prisma.pack.findUnique({
+      where: { id: input.id },
+      include: {
+        packItems: true,
+      },
+    });
+    if (!pack) throw new TRPCError({ code: "NOT_FOUND" });
+
+    return pack;
   }),
   create: privateProcedure
     .input(
