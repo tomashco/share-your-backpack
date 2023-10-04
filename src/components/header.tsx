@@ -13,8 +13,8 @@ export const Header = ({ pageTitle }: { pageTitle: ReactNode }) => {
   const user = useUser();
 
   return (
-    <>
-      <nav className="flex w-screen justify-between px-9">
+    <div className=" flex flex-col items-center justify-center gap-12 px-4 py-16 ">
+      <nav className="flex w-full justify-between">
         <Link href="/" className="flex items-center">
           <Image
             width={35}
@@ -57,6 +57,6 @@ export const Header = ({ pageTitle }: { pageTitle: ReactNode }) => {
       <h1 className="text-center text-5xl font-extrabold tracking-tight text-primary drop-shadow-xl sm:text-[5rem]">
         {pageTitle}
       </h1>
-    </>
+    </div>
   );
 };

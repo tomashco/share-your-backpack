@@ -13,7 +13,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center bg-gradient-to-tl from-indigo-200 via-red-200 to-yellow-100">
-        {children}
+        <div className="container mx-auto"> {children}</div>
       </main>
     </section>
   );
