@@ -8,6 +8,33 @@ import {
 import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/nodejs";
+import { clerkClient } from "@clerk/nextjs";
+import { type Pack } from "@prisma/client";
+import { filterUserForClient } from "@/server/helpers/filterUserForClient";
+
+const addUserDataToPosts = async (packs: Pack[]) => {
+  const users = (
+    await clerkClient.users.getUserList({
+      userId: packs.map((pack) => pack.authorId),
+      limit: 100,
+    })
+  ).map(filterUserForClient);
+
+  return packs.map((pack) => {
+    const author = users.find((user) => user.id === pack.authorId);
+
+    if (!author?.id) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Author for post not found",
+      });
+    }
+    return {
+      pack,
+      author,
+    };
+  });
+};
 
 // Create a new ratelimiter, that allows 10 requests per 10 seconds
 const ratelimit = new Ratelimit({
@@ -15,16 +42,17 @@ const ratelimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(10, "10 s"),
   analytics: true,
   /**
-   * Optional prefix for the keys used in redis. This is useful if you want to share a redis
+   * Optional prefix, useful if you want to share a redis
    * instance with other applications and want to avoid key collisions. The default prefix is
    * "@upstash/ratelimit"
    */
-  prefix: "@upstash/ratelimit",
+  prefix: "@upstash/share-your-backpack",
 });
 
 export const packsRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.pack.findMany();
+    const packs = await ctx.prisma.pack.findMany();
+    return addUserDataToPosts(packs)
   }),
 
   getById: publicProcedure.input(z.object({ id: z.string() }))
