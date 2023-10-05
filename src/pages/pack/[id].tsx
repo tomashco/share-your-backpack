@@ -3,11 +3,17 @@ import { api } from "@/utils/api";
 import RootLayout from "@/components/layout";
 import { Header } from "@/components/header";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
+import { UpdatePackItemForm } from "@/components/PackForm";
+import { useState } from "react";
+import { PencilIcon } from "@heroicons/react/24/outline";
+import { useUser } from "@clerk/nextjs";
 
 const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
+  const [editItem, setEditItem] = useState("");
   const { data } = api.packs.getById.useQuery({
     id,
   });
+  const user = useUser();
 
   if (!data) return <div>404</div>;
 
@@ -23,7 +29,32 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
           </>
         }
       />
-      {data.packItems?.map((item) => <p key={item.id}>{item.name}</p>)}
+      {data.packItems?.map((item) => (
+        <div key={item.id}>
+          {editItem === item.id ? (
+            <UpdatePackItemForm
+              id={item.id}
+              packId={id}
+              oldName={item.name}
+              action={() => setEditItem("")}
+            />
+          ) : (
+            <p className="flex ">
+              {item.name}
+              {data.authorId === user?.user?.id && (
+                <span
+                  onClick={() =>
+                    setEditItem(editItem === item.id ? "" : item.id)
+                  }
+                  className="m-2 block w-5 cursor-pointer hover:text-red-400"
+                >
+                  <PencilIcon />
+                </span>
+              )}
+            </p>
+          )}
+        </div>
+      ))}
     </RootLayout>
   );
 };

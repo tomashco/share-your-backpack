@@ -1,7 +1,7 @@
 import RootLayout from "@/components/layout";
 import { Header } from "@/components/header";
 import { api } from "@/utils/api";
-import { PackForm } from "@/components/PackForm";
+import { CreatePackForm } from "@/components/PackForm";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -18,7 +18,7 @@ export default function Home() {
         }
       />
 
-      <PackForm />
+      <CreatePackForm />
       <h2 className="text-3xl font-bold tracking-tight">The list of Packs</h2>
       {packs ? (
         packs.map((pack) => (
