@@ -16,31 +16,25 @@ import { api } from "@/utils/api";
 import toast from "react-hot-toast";
 import { cn } from "@/utils";
 
+const itemSchema = z.object({
+  name: z.string().min(2, {
+    message: "pack name must be at least 2 characters.",
+  }),
+});
+
+const packItemSchema = z.object({ packItems: z.array(itemSchema) });
+
 const packSchema = z.object({
   packName: z.string().min(2, {
     message: "pack name must be at least 2 characters.",
   }),
-  packItems: z
-    .array(
-      z.object({
-        name: z.string().min(2, {
-          message: "pack name must be at least 2 characters.",
-        }),
-      }),
-    )
-    .optional(),
-});
-
-const itemSchema = z.object({
-  itemName: z.string().min(2, {
-    message: "pack name must be at least 2 characters.",
-  }),
+  packItems: z.array(itemSchema).optional(),
 });
 
 export function CreatePackForm() {
   const ctx = api.useContext();
 
-  const { mutate: createPack } = api.packs.create.useMutation({
+  const { mutate: createPack } = api.packs.createPack.useMutation({
     onSuccess: () => {
       void ctx.packs.getAll.invalidate();
       form.reset();
@@ -133,6 +127,66 @@ export function CreatePackForm() {
   );
 }
 
+export function UpdatePackForm({
+  id,
+  oldName,
+  action,
+}: {
+  id: string;
+  oldName: string;
+  action: () => void;
+}) {
+  const ctx = api.useContext();
+
+  const { mutate: updatePack } = api.packs.editPack.useMutation({
+    onSuccess: () => {
+      void ctx.packs.getById.invalidate();
+      form.reset();
+      action();
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.code;
+      if (errorMessage) {
+        toast.error(errorMessage);
+      } else {
+        toast.error("Failed to update! Please try again later.");
+      }
+    },
+  });
+
+  const form = useForm<z.infer<typeof itemSchema>>({
+    resolver: zodResolver(itemSchema),
+    defaultValues: {
+      name: "",
+    },
+    mode: "onChange",
+  });
+
+  function onSubmit({ name }: z.infer<typeof itemSchema>) {
+    updatePack({ id, name });
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex space-x-2">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder={oldName} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
+}
+
 export function UpdatePackItemForm({
   id,
   packId,
@@ -166,13 +220,13 @@ export function UpdatePackItemForm({
   const form = useForm<z.infer<typeof itemSchema>>({
     resolver: zodResolver(itemSchema),
     defaultValues: {
-      itemName: "",
+      name: "",
     },
     mode: "onChange",
   });
 
-  function onSubmit(values: z.infer<typeof itemSchema>) {
-    updatePackItem({ packId, id, name: values.itemName });
+  function onSubmit({ name }: z.infer<typeof itemSchema>) {
+    updatePackItem({ packId, id, name });
   }
 
   return (
@@ -180,7 +234,7 @@ export function UpdatePackItemForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex space-x-2">
         <FormField
           control={form.control}
-          name="itemName"
+          name="name"
           render={({ field }) => (
             <FormItem>
               {/* <FormLabel>Pack Name</FormLabel> */}
@@ -192,6 +246,89 @@ export function UpdatePackItemForm({
             </FormItem>
           )}
         />
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
+}
+
+export function AddPackItemsForm({
+  id,
+}: {
+  id: string;
+  oldItems: { name: string }[];
+}) {
+  const ctx = api.useContext();
+
+  const { mutate: addPackItems } = api.packs.addPackItems.useMutation({
+    onSuccess: () => {
+      void ctx.packs.getById.invalidate();
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.code;
+      if (errorMessage) {
+        toast.error(errorMessage);
+      } else {
+        toast.error("Failed to create! Please try again later.");
+      }
+    },
+  });
+
+  const form = useForm<z.infer<typeof packItemSchema>>({
+    resolver: zodResolver(packItemSchema),
+    defaultValues: {
+      packItems: [],
+    },
+    mode: "onChange",
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    name: "packItems",
+    control: form.control,
+  });
+
+  function onSubmit({ packItems }: z.infer<typeof packItemSchema>) {
+    addPackItems({ id, packItems });
+    form.reset({ packItems: [{ name: "" }] });
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div>
+          {fields.map((field, index) => (
+            <FormField
+              control={form.control}
+              key={field.id}
+              name={`packItems.${index}.name`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={cn(index !== 0 && "sr-only")}>
+                    Add new pack items:
+                  </FormLabel>
+                  <FormControl>
+                    <div className="flex space-x-2">
+                      <Input {...field} />
+                      <Button type="button" onClick={() => remove(index)}>
+                        Remove
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ))}
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            className="mt-2"
+            onClick={() => append({ name: "" })}
+          >
+            Add pack item
+          </Button>
+        </div>
         <Button type="submit">Submit</Button>
       </form>
     </Form>

@@ -68,7 +68,7 @@ export const packsRouter = createTRPCRouter({
       return pack;
     }),
 
-  create: privateProcedure
+  createPack: privateProcedure
     .input(
       z.object({
         name: z.string().min(1).max(200),
@@ -106,11 +106,46 @@ export const packsRouter = createTRPCRouter({
       if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
       try {
         await ctx.prisma.pack.update({
-          where: { id: input.id, authorId: authorId },
+          where: { id: input.id, authorId },
           data: {
             authorId,
-            name: input.name
+            name: input.name,
           },
+        });
+      } catch (err) {
+        console.log("DELETE ERROR: ", err);
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      return "ok";
+    }),
+    addPackItems: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        packItems: z.object({
+          name: z.string().min(1).max(200)
+        }).array()
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const authorId = ctx.userId;
+
+      const { success } = await ratelimit.limit(authorId);
+
+      if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+      try {
+        await ctx.prisma.pack.update({
+
+          where: { id: input.id, authorId },
+          data: {
+            packItems:  {
+              // deleteMany: {},
+              create: input.packItems
+            }
+          },
+          include:{
+            packItems: true
+          }
         });
       } catch (err) {
         console.log("DELETE ERROR: ", err);
@@ -145,6 +180,39 @@ export const packsRouter = createTRPCRouter({
                 data: {
                   name: input.name
                 }
+              }
+            }
+          },
+          include: {
+            packItems: true
+          }
+        });
+      } catch (err) {
+        console.log("DELETE ERROR: ", err);
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      return "ok";
+    }),
+  deletePackItem: privateProcedure
+    .input(
+      z.object({
+        packId: z.string(),
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const authorId = ctx.userId;
+
+      const { success } = await ratelimit.limit(authorId);
+
+      if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+      try {
+        await ctx.prisma.pack.update({
+          where: { id: input.packId, authorId: authorId },
+          data: {
+            packItems: {
+              delete: {
+                  id: input.id,
               }
             }
           },
