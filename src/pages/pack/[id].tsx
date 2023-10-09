@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 import toast from "react-hot-toast";
-import { PackItem } from "@prisma/client";
+import { type PackItem } from "@prisma/client";
 
 enum sortCriteria {
   category = "category",

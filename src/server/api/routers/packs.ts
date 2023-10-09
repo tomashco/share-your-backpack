@@ -161,6 +161,8 @@ export const packsRouter = createTRPCRouter({
         packId: z.string(),
         id: z.string(),
         name: z.string().min(1).max(200),
+        category: z.string().optional(),
+        location: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -179,7 +181,9 @@ export const packsRouter = createTRPCRouter({
                   id: input.id,
                 },
                 data: {
-                  name: input.name
+                  name: input.name,
+                  category: input.category,
+                  location: input.location
                 }
               }
             }
