@@ -123,7 +123,9 @@ export const packsRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         packItems: z.object({
-          name: z.string().min(1).max(200)
+          name: z.string().min(1).max(200),
+          category: z.string().optional(),
+          location: z.string().optional()
         }).array()
       }),
     )
@@ -139,7 +141,6 @@ export const packsRouter = createTRPCRouter({
           where: { id: input.id, authorId },
           data: {
             packItems:  {
-              // deleteMany: {},
               create: input.packItems
             }
           },

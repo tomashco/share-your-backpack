@@ -20,6 +20,8 @@ const itemSchema = z.object({
   name: z.string().min(2, {
     message: "pack name must be at least 2 characters.",
   }),
+  category: z.string().optional(),
+  location: z.string().optional(),
 });
 
 const packItemSchema = z.object({ packItems: z.array(itemSchema) });
@@ -116,7 +118,7 @@ export function CreatePackForm() {
             variant="secondary"
             size="sm"
             className="mt-2"
-            onClick={() => append({ name: "" })}
+            onClick={() => append({ name: "", category: "", location: "" })}
           >
             Add pack item
           </Button>
@@ -237,11 +239,9 @@ export function UpdatePackItemForm({
           name="name"
           render={({ field }) => (
             <FormItem>
-              {/* <FormLabel>Pack Name</FormLabel> */}
               <FormControl>
                 <Input placeholder={oldName} {...field} />
               </FormControl>
-              {/* <FormDescription>This is your pack name.</FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
@@ -252,12 +252,7 @@ export function UpdatePackItemForm({
   );
 }
 
-export function AddPackItemsForm({
-  id,
-}: {
-  id: string;
-  oldItems: { name: string }[];
-}) {
+export function AddPackItemsForm({ id }: { id: string }) {
   const ctx = api.useContext();
 
   const { mutate: addPackItems } = api.packs.addPackItems.useMutation({
@@ -287,8 +282,8 @@ export function AddPackItemsForm({
     control: form.control,
   });
 
-  function onSubmit({ packItems }: z.infer<typeof packItemSchema>) {
-    addPackItems({ id, packItems });
+  function onSubmit(values: z.infer<typeof packItemSchema>) {
+    addPackItems({ id, packItems: values.packItems });
     form.reset({ packItems: [{ name: "" }] });
   }
 
@@ -297,34 +292,69 @@ export function AddPackItemsForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div>
           {fields.map((field, index) => (
-            <FormField
-              control={form.control}
-              key={field.id}
-              name={`packItems.${index}.name`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(index !== 0 && "sr-only")}>
-                    Add new pack items:
-                  </FormLabel>
-                  <FormControl>
-                    <div className="flex space-x-2">
-                      <Input {...field} />
-                      <Button type="button" onClick={() => remove(index)}>
-                        Remove
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div key={field.id} className="flex items-end space-x-2">
+              <FormField
+                control={form.control}
+                name={`packItems.${index}.name`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={cn(index !== 0 && "sr-only")}>
+                      Add new pack items:
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex space-x-2">
+                        <Input {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`packItems.${index}.category`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={cn(index !== 0 && "sr-only")}>
+                      Category:
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex space-x-2">
+                        <Input {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`packItems.${index}.location`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={cn(index !== 0 && "sr-only")}>
+                      Location:
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex space-x-2">
+                        <Input {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="button" onClick={() => remove(index)}>
+                Remove
+              </Button>
+            </div>
           ))}
           <Button
             type="button"
             variant="secondary"
             size="sm"
             className="mt-2"
-            onClick={() => append({ name: "" })}
+            onClick={() => append({ name: "", category: "", location: "" })}
           >
             Add pack item
           </Button>
