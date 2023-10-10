@@ -8,12 +8,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "./ui/input";
 
 export const Header = ({ pageTitle }: { pageTitle: ReactNode }) => {
   const user = useUser();
 
   return (
-    <div className=" flex flex-col items-center justify-center gap-12 px-4 py-16 ">
+    <div className=" flex flex-col items-center justify-center gap-12 px-4 pb-16 pt-4 ">
       <nav className="flex w-full justify-between">
         <Link href="/" className="flex items-center">
           <Image
@@ -27,16 +28,21 @@ export const Header = ({ pageTitle }: { pageTitle: ReactNode }) => {
             SharePack
           </span>
         </Link>
-        <div className=" w-full" id="navbar-default">
-          <ul className="flex items-center justify-end font-medium">
+        <div id="pages-links">
+          <ul>
             <li>
               <Button variant="link">
-                <Link href="/todo" className="mr-3">
-                  Todos
-                </Link>
+                <Link href="/todo">Todos</Link>
               </Button>
             </li>
-            <li className="mr-3">
+          </ul>
+        </div>
+        <div id="navbar-default">
+          <ul className="flex items-center justify-end space-x-3 font-medium">
+            <li>
+              <Input placeholder="search" />
+            </li>
+            <li>
               <UserButton afterSignOutUrl="/" />
             </li>
             <li>

@@ -1,13 +1,14 @@
 import { type RouterOutputs, api } from "@/utils/api";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "react-hot-toast";
-import RootLayout from "@/components/layout";
+import RootLayout from "@/components/layouts/RootLayout";
 import { LoadingSpinner } from "@/components/loading";
 import { useState } from "react";
 import { TrashIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { type Post } from "@prisma/client";
 import Image from "next/image";
 import { Header } from "@/components/header";
+import PageLayout from "@/components/layouts/PageLayout";
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number];
 
@@ -110,21 +111,14 @@ export default function TodoPage() {
 
   return (
     <RootLayout>
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-        <Header
-          pageTitle={
-            <>
-              <span className="text-[hsl(280,100%,70%)]">Todos</span>
-            </>
-          }
-        />
-        <div className="text-primary text-2xl">
+      <Header pageTitle={<span className="text-sagegreen">Todos</span>} />
+      <PageLayout>
+        <div className="text-2xl text-primary">
           {!editPostId && <CreatePostWizard />}
           {posts ? (
             <ul>
               {posts.map((props: PostWithUser) => {
                 const { post, author } = props;
-                console.log("SINGLE POST: ", post);
                 return (
                   <div key={post.id}>
                     <li className="flex w-full items-center justify-between">
@@ -171,7 +165,7 @@ export default function TodoPage() {
             "No posts!"
           )}
         </div>
-      </div>
+      </PageLayout>
     </RootLayout>
   );
 }

@@ -1,6 +1,7 @@
 import { SignIn } from "@clerk/nextjs";
-import RootLayout from "../../components/layout";
+import RootLayout from "../../components/layouts/RootLayout";
 import { Header } from "@/components/header";
+import PageLayout from "@/components/layouts/PageLayout";
 
 export default function Page() {
   return (
@@ -8,13 +9,15 @@ export default function Page() {
       <Header
         pageTitle={
           <>
-            <span className="text-[hsl(280,100%,70%)]">Sign</span> in!
+            <span className="text-sagegreen">Sign</span> in!
           </>
         }
       />
-      <div className="container flex justify-center">
-        <SignIn />
-      </div>
+      <PageLayout>
+        <div className="flex justify-center">
+          <SignIn />
+        </div>
+      </PageLayout>
     </RootLayout>
   );
 }

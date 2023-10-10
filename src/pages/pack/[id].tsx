@@ -1,6 +1,6 @@
 import type { GetStaticProps, NextPage } from "next";
 import { api } from "@/utils/api";
-import RootLayout from "@/components/layout";
+import RootLayout from "@/components/layouts/RootLayout";
 import { Header } from "@/components/header";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import {
@@ -13,6 +13,7 @@ import { useUser } from "@clerk/nextjs";
 import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 import toast from "react-hot-toast";
 import { type PackItem } from "@prisma/client";
+import PageLayout from "@/components/layouts/PageLayout";
 
 enum sortCriteria {
   category = "category",
@@ -122,9 +123,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
               </div>
             ) : (
               <div className="flex">
-                <span className="text-[hsl(280,100%,70%)]">
-                  {titleArray[0]}
-                </span>
+                <span className="text-sagegreen">{titleArray[0]}</span>
                 &nbsp;
                 {titleArray.splice(1).join(" ")}{" "}
                 {isEditable && (
@@ -140,42 +139,44 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
           </>
         }
       />
-      <div className="mb-3 flex items-center justify-end">
-        <span className="mr-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-          {sortCriteria.category}
-        </span>
-        <label className="relative inline-flex cursor-pointer items-center">
-          <input
-            type="checkbox"
-            value={selectedSort}
-            onClick={() =>
-              setSelectedSort(
-                selectedSort === sortCriteria.category
-                  ? sortCriteria.location
-                  : sortCriteria.category,
-              )
-            }
-            className="peer sr-only"
-          />
-          <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:bg-white after:transition-all after:content-['']  peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none dark:border-gray-600 dark:bg-gray-700"></div>
-          <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-            {sortCriteria.location}
+      <PageLayout>
+        <div className="mb-3 flex items-center justify-end">
+          <span className="mr-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+            {sortCriteria.category}
           </span>
-        </label>
-      </div>
-      {allSorts[selectedSort]?.map((sortName) => (
-        <>
-          <h1 className="drop-shadow-l text-xl font-extrabold text-primary">
-            {sortName ? sortName : "TBD"}
-          </h1>
-          {data.packItems
-            .filter((el) => el[selectedSort] === sortName)
-            .map((item) => (
-              <ItemData key={item.id} item={item} />
-            ))}
-        </>
-      ))}
-      {isEditable && <AddPackItemsForm id={id} />}
+          <label className="relative inline-flex cursor-pointer items-center">
+            <input
+              type="checkbox"
+              value={selectedSort}
+              onClick={() =>
+                setSelectedSort(
+                  selectedSort === sortCriteria.category
+                    ? sortCriteria.location
+                    : sortCriteria.category,
+                )
+              }
+              className="peer sr-only"
+            />
+            <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:bg-white after:transition-all after:content-['']  peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none dark:border-gray-600 dark:bg-gray-700"></div>
+            <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+              {sortCriteria.location}
+            </span>
+          </label>
+        </div>
+        {allSorts[selectedSort]?.map((sortName) => (
+          <>
+            <h1 className="drop-shadow-l text-xl font-extrabold text-primary">
+              {sortName ? sortName : "TBD"}
+            </h1>
+            {data.packItems
+              .filter((el) => el[selectedSort] === sortName)
+              .map((item) => (
+                <ItemData key={item.id} item={item} />
+              ))}
+          </>
+        ))}
+        {isEditable && <AddPackItemsForm id={id} />}
+      </PageLayout>
     </RootLayout>
   );
 };
