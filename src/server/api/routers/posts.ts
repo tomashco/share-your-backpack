@@ -91,7 +91,6 @@ export const postsRouter = createTRPCRouter({
           where: { id: input.id, authorId: authorId },
         });
       } catch (err) {
-        console.log("DELETE ERROR: ", err);
         throw new TRPCError({ code: "NOT_FOUND" });
       }
       return "ok";
@@ -118,7 +117,6 @@ export const postsRouter = createTRPCRouter({
           },
         });
       } catch (err) {
-        console.log("DELETE ERROR: ", err);
         throw new TRPCError({ code: "NOT_FOUND" });
       }
       return "ok";

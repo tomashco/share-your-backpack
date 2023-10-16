@@ -3,5 +3,5 @@ export default function PageLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="container mx-auto"> {children}</div>;
+  return <div className="container mx-auto h-[80%] p-4"> {children}</div>;
 }

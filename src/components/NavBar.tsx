@@ -15,7 +15,7 @@ export default function Navbar() {
   const user = useUser();
 
   return (
-    <nav className="w-full border-b bg-white md:border-0">
+    <nav className="w-full border-b bg-white bg-opacity-80 md:border-0">
       <div className="mx-auto max-w-screen-xl items-center px-4 md:flex md:px-8">
         <div className="flex items-center justify-between py-3 md:block md:py-5">
           <Link href="/" className="flex items-center">

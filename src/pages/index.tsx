@@ -19,7 +19,9 @@ export default function Home() {
         }
       />
       <PageLayout>
-        <CreatePackForm />
+        <div className="space-y-8 rounded-md border p-3 shadow-md">
+          <CreatePackForm />
+        </div>
         <h2 className="text-3xl font-bold tracking-tight">The list of Packs</h2>
         {packs ? (
           packs.map(({ pack, author }) => (

@@ -1,4 +1,4 @@
-import { type RouterOutputs, api } from "@/utils/api";
+import { type RouterOutputs, api, displayError } from "@/utils/api";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "react-hot-toast";
 import RootLayout from "@/components/layouts/RootLayout";
@@ -29,15 +29,7 @@ export default function TodoPage() {
     onSuccess: () => {
       void ctx.posts.getAll.invalidate();
     },
-    onError: (e) => {
-      const errorMessage = e.data?.code;
-      console.log("ERROR MESSAGE: ", e.data);
-      if (errorMessage) {
-        toast.error(errorMessage);
-      } else {
-        toast.error("Failed to delete! Please try again later.");
-      }
-    },
+    onError: (e) => displayError(e),
   });
 
   const CreatePostWizard = ({ post = emptyPost }: { post?: Post }) => {

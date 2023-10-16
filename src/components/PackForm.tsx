@@ -12,21 +12,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { api } from "@/utils/api";
-import toast from "react-hot-toast";
+import { api, displayError } from "@/utils/api";
 import { cn } from "@/utils";
-import { type TRPCClientErrorLike } from "@trpc/client";
-import { type AppRouter } from "@/server/api/root";
-
-function displayError(e: TRPCClientErrorLike<AppRouter>) {
-  const errorMessage = e.data?.code;
-  console.log("ERROR MESSAGE: ", e.data);
-  if (errorMessage) {
-    toast.error(errorMessage);
-  } else {
-    toast.error("Failed to create! Please try again later.");
-  }
-}
 
 const itemSchema = z.object({
   name: z.string().min(2, {
@@ -80,7 +67,10 @@ export function CreatePackForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="prose">
+          <h1>Add a new pack</h1>
+        </div>
         <FormField
           control={form.control}
           name="packName"
@@ -133,7 +123,7 @@ export function CreatePackForm() {
   );
 }
 
-export function UpdatePackForm({
+export function UpdatePackName({
   id,
   oldName,
   action,
@@ -174,7 +164,11 @@ export function UpdatePackForm({
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder={oldName} {...field} />
+                <Input
+                  className="border-none shadow-none"
+                  placeholder={oldName}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -113,7 +113,6 @@ export const packsRouter = createTRPCRouter({
           },
         });
       } catch (err) {
-        console.log("DELETE ERROR: ", err);
         throw new TRPCError({ code: "NOT_FOUND" });
       }
       return "ok";
@@ -149,7 +148,6 @@ export const packsRouter = createTRPCRouter({
           }
         });
       } catch (err) {
-        console.log("DELETE ERROR: ", err);
         throw new TRPCError({ code: "NOT_FOUND" });
       }
       return "ok";
@@ -193,7 +191,6 @@ export const packsRouter = createTRPCRouter({
           }
         });
       } catch (err) {
-        console.log("DELETE ERROR: ", err);
         throw new TRPCError({ code: "NOT_FOUND" });
       }
       return "ok";
@@ -226,7 +223,6 @@ export const packsRouter = createTRPCRouter({
           }
         });
       } catch (err) {
-        console.log("DELETE ERROR: ", err);
         throw new TRPCError({ code: "NOT_FOUND" });
       }
       return "ok";

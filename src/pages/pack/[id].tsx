@@ -5,8 +5,8 @@ import { Header } from "@/components/header";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import {
   AddPackItemsForm,
-  UpdatePackForm,
   UpdatePackItemForm,
+  UpdatePackName,
 } from "@/components/PackForm";
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
@@ -112,17 +112,15 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
     <RootLayout>
       <Header
         pageTitle={
-          <>
+          <div className="flex justify-center">
             {editTitle ? (
-              <div>
-                <UpdatePackForm
-                  id={id}
-                  oldName={data.name}
-                  action={() => setEditTitle(false)}
-                />
-              </div>
+              <UpdatePackName
+                id={id}
+                oldName={data.name}
+                action={() => setEditTitle(false)}
+              />
             ) : (
-              <div className="flex">
+              <>
                 <span className="text-sagegreen">{titleArray[0]}</span>
                 &nbsp;
                 {titleArray.splice(1).join(" ")}{" "}
@@ -134,9 +132,9 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
                     <Pencil2Icon className="h-full w-full opacity-70" />
                   </span>
                 )}
-              </div>
+              </>
             )}
-          </>
+          </div>
         }
       />
       <PageLayout>
