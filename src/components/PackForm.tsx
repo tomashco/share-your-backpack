@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { api, displayError } from "@/utils/api";
 import { cn } from "@/utils";
+import { Textarea } from "./ui/textarea";
 
 const itemSchema = z.object({
   name: z.string().min(2, {
@@ -26,9 +27,10 @@ const itemSchema = z.object({
 const packItemSchema = z.object({ packItems: z.array(itemSchema) });
 
 const packSchema = z.object({
-  packName: z.string().min(2, {
+  name: z.string().min(2, {
     message: "pack name must be at least 2 characters.",
   }),
+  description: z.string().optional(),
   packItems: z.array(itemSchema).optional(),
 });
 
@@ -46,7 +48,8 @@ export function CreatePackForm() {
   const form = useForm<z.infer<typeof packSchema>>({
     resolver: zodResolver(packSchema),
     defaultValues: {
-      packName: "",
+      name: "",
+      description: "",
       packItems: [
         {
           name: "a generic item",
@@ -62,7 +65,7 @@ export function CreatePackForm() {
   });
 
   function onSubmit(values: z.infer<typeof packSchema>) {
-    createPack({ name: values.packName, packItems: values.packItems });
+    createPack({ ...values });
   }
 
   return (
@@ -73,7 +76,7 @@ export function CreatePackForm() {
         </div>
         <FormField
           control={form.control}
-          name="packName"
+          name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Pack Name</FormLabel>
@@ -81,6 +84,23 @@ export function CreatePackForm() {
                 <Input placeholder="New Pack 2043" {...field} />
               </FormControl>
               <FormDescription>This is your pack name.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tour description</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Just write something about your trail!"
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

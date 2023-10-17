@@ -21,11 +21,15 @@ model Post {
 }
 
 model Pack {
-  id        String     @id @unique @default(cuid())
-  createdAt DateTime   @default(now())
-  name      String     @db.VarChar(255)
-  authorId  String
-  packItems PackItem[]
+  id          String     @id @unique @default(cuid())
+  createdAt   DateTime   @default(now())
+  name        String     @db.VarChar(255)
+  description String     @default("") @db.Text
+  // activityType String
+  // duration     Int
+  // gpx          Bytes
+  authorId    String
+  packItems   PackItem[]
 }
 
 model PackItem {
