@@ -5,8 +5,8 @@ import { Header } from "@/components/header";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import {
   AddPackItemsForm,
+  UpdatePackInfo,
   UpdatePackItemForm,
-  UpdatePackName,
 } from "@/components/PackForm";
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
@@ -14,6 +14,15 @@ import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 import toast from "react-hot-toast";
 import { type PackItem } from "@prisma/client";
 import PageLayout from "@/components/layouts/PageLayout";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 enum sortCriteria {
   category = "category",
@@ -22,7 +31,6 @@ enum sortCriteria {
 
 const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   const [editItem, setEditItem] = useState("");
-  const [editTitle, setEditTitle] = useState(false);
   const [selectedSort, setSelectedSort] = useState(sortCriteria.category);
   const { data } = api.packs.getById.useQuery({
     id,
@@ -36,6 +44,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   const locations = Array.from(
     new Set(data?.packItems.map((item) => item.location)),
   );
+  const [open, setOpen] = useState(false);
 
   const allSorts = {
     category: categories,
@@ -62,14 +71,13 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
       if (event.key === "Escape") {
         event.preventDefault();
         setEditItem("");
-        if (editTitle) setEditTitle(false);
       }
     };
     document.addEventListener("keydown", keyDownHandler);
     return () => {
       document.removeEventListener("keydown", keyDownHandler);
     };
-  }, [editTitle]);
+  }, []);
 
   if (!data) return <div>404</div>;
 
@@ -113,32 +121,14 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
       <Header
         pageTitle={
           <div className="flex justify-center">
-            {editTitle ? (
-              <UpdatePackName
-                id={id}
-                oldName={data.name}
-                action={() => setEditTitle(false)}
-              />
-            ) : (
-              <>
-                <span className="text-sagegreen">{titleArray[0]}</span>
-                &nbsp;
-                {titleArray.splice(1).join(" ")}{" "}
-                {isEditable && (
-                  <span
-                    onClick={() => setEditTitle(true)}
-                    className="m-2 block w-16 cursor-pointer hover:text-red-400"
-                  >
-                    <Pencil2Icon className="h-full w-full opacity-70" />
-                  </span>
-                )}
-              </>
-            )}
+            <span className="text-sagegreen">{titleArray[0]}</span>
+            &nbsp;
+            {titleArray.splice(1).join(" ")}{" "}
           </div>
         }
       />
       <PageLayout>
-        <div className="mb-3 flex items-center justify-end">
+        <div className="mb-3 flex items-center justify-end space-x-3">
           <span className="mr-3 text-sm font-medium text-gray-900 dark:text-gray-300">
             {sortCriteria.category}
           </span>
@@ -160,6 +150,26 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
               {sortCriteria.location}
             </span>
           </label>
+          {isEditable && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger>
+                <Button variant="secondary">Edit Pack</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit pack informations</DialogTitle>
+                  <DialogDescription>
+                    <UpdatePackInfo
+                      id={id}
+                      oldName={data.name}
+                      oldDescription={data.description ?? ""}
+                      action={() => setOpen(false)}
+                    />
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
         <p className="prose">{data.description}</p>
         {allSorts[selectedSort]?.map((sortName) => (

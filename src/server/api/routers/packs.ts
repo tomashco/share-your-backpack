@@ -98,6 +98,7 @@ export const packsRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         name: z.string().min(1).max(200),
+        description: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -109,10 +110,7 @@ export const packsRouter = createTRPCRouter({
       try {
         await ctx.prisma.pack.update({
           where: { id: input.id, authorId },
-          data: {
-            authorId,
-            name: input.name,
-          },
+          data: { ...input, authorId },
         });
       } catch (err) {
         throw new TRPCError({ code: "NOT_FOUND" });

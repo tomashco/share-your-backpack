@@ -143,13 +143,15 @@ export function CreatePackForm() {
   );
 }
 
-export function UpdatePackName({
+export function UpdatePackInfo({
   id,
   oldName,
+  oldDescription,
   action,
 }: {
   id: string;
   oldName: string;
+  oldDescription: string;
   action: () => void;
 }) {
   const ctx = api.useContext();
@@ -163,16 +165,17 @@ export function UpdatePackName({
     onError: (e) => displayError(e),
   });
 
-  const form = useForm<z.infer<typeof itemSchema>>({
-    resolver: zodResolver(itemSchema),
+  const form = useForm<z.infer<typeof packSchema>>({
+    resolver: zodResolver(packSchema),
     defaultValues: {
-      name: "",
+      name: oldName,
+      description: oldDescription ?? "",
     },
     mode: "onChange",
   });
 
-  function onSubmit({ name }: z.infer<typeof itemSchema>) {
-    updatePack({ id, name });
+  function onSubmit(values: z.infer<typeof packSchema>) {
+    updatePack({ id, ...values });
   }
 
   return (
@@ -183,10 +186,28 @@ export function UpdatePackName({
           name="name"
           render={({ field }) => (
             <FormItem>
+              <FormLabel>Pack Name:</FormLabel>
               <FormControl>
                 <Input
                   className="border-none shadow-none"
                   placeholder={oldName}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tour description</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder={oldDescription}
+                  className="resize-none"
                   {...field}
                 />
               </FormControl>
