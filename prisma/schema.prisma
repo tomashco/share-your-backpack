@@ -24,7 +24,7 @@ model Pack {
   id          String     @id @unique @default(cuid())
   createdAt   DateTime   @default(now())
   name        String     @db.VarChar(255)
-  description String     @default("") @db.Text
+  description String?    @db.Text
   // activityType String
   // duration     Int
   // gpx          Bytes

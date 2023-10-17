@@ -72,6 +72,7 @@ export const packsRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string().min(1).max(200),
+        description: z.string(),
         packItems: z.object({
           name: z.string().min(1).max(200)
         }).array().optional()
@@ -83,6 +84,7 @@ export const packsRouter = createTRPCRouter({
         data: {
           authorId,
           name: input.name,
+          description: input.description,
           packItems: {
             create: input.packItems,
           },

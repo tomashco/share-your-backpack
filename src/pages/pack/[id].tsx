@@ -161,6 +161,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
             </span>
           </label>
         </div>
+        <p className="prose">{data.description}</p>
         {allSorts[selectedSort]?.map((sortName) => (
           <>
             <h1 className="drop-shadow-l text-xl font-extrabold text-primary">
