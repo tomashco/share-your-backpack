@@ -8,6 +8,7 @@ export default authMiddleware({
     "/api/trpc/posts.getAll", 
     "/api/trpc/packs.getAll",
     "/api/trpc/packs.getById",
+    "/api/trpc/packs.search", 
     '/pack/(.*)'
   ],
 });
