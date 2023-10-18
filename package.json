@@ -5,6 +5,9 @@
   "scripts": {
     "build": "next build",
     "db:push": "prisma db push",
+    "db:branchList": "pscale branch list share-your-backpack-db",
+    "db:connect": "pscale connect share-your-backpack-db",
+    "argument": "echo \"The value of --foo is '${npm_config_foo}'\"",
     "localdb:start": "mysql.server start",
     "localdb:stop": "mysql.server stop",
     "localdb:root": "mysql -u root -p",

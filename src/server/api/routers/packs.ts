@@ -68,6 +68,23 @@ export const packsRouter = createTRPCRouter({
       return pack;
     }),
 
+    search: publicProcedure.input(z.object({ value: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.prisma.pack.findMany({
+        where: {
+          name: {
+            search: input.value,
+          },
+          description: {
+            search: input.value,
+          },
+        },
+      })
+      if (!result) throw new TRPCError({ code: "NOT_FOUND" });
+
+      return result;
+    }),
+
   createPack: privateProcedure
     .input(
       z.object({

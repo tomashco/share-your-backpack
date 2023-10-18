@@ -9,10 +9,27 @@ import {
   useUser,
 } from "@clerk/nextjs";
 import { Button } from "./ui/button";
+import { api } from "@/utils/api";
+import { PackItem } from "@prisma/client";
 
 export default function Navbar() {
   const [state, setState] = React.useState(false);
+  const [searchValue, setSearchValue] = React.useState("");
   const user = useUser();
+
+  const { data, refetch: searchPacks } = api.packs.search.useQuery(
+    {
+      value: searchValue,
+    },
+    {
+      refetchOnWindowFocus: false,
+      enabled: false,
+    },
+  );
+
+  // const { data } = api.packs.getById.useQuery({
+  //   id,
+  // });
 
   return (
     <nav className="w-full border-b bg-white bg-opacity-80 md:border-0">
@@ -61,7 +78,14 @@ export default function Navbar() {
                 </SignInButton>
               )}
             </li>
-            <form className="flex items-center  space-x-2 rounded-md border p-2">
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const results = await searchPacks();
+                console.log("RESULTS", results);
+              }}
+              className="flex items-center  space-x-2 rounded-md border p-2"
+            >
               <span className="block w-5 cursor-pointer hover:text-red-400">
                 <MagnifyingGlassIcon className="h-full w-full opacity-70" />
               </span>
@@ -69,6 +93,8 @@ export default function Navbar() {
                 className="w-full appearance-none text-gray-500 placeholder-gray-500 outline-none sm:w-auto"
                 type="text"
                 placeholder="Search"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
               />
             </form>
           </ul>

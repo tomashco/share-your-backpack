@@ -1,8 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextIndex", "fullTextSearch"]
 }
 
 datasource db {
@@ -24,12 +22,11 @@ model Pack {
   id          String     @id @unique @default(cuid())
   createdAt   DateTime   @default(now())
   name        String     @db.VarChar(255)
-  description String?    @db.Text
-  // activityType String
-  // duration     Int
-  // gpx          Bytes
   authorId    String
+  description String?    @db.Text
   packItems   PackItem[]
+
+  @@fulltext([name, description])
 }
 
 model PackItem {
