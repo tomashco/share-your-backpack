@@ -10,14 +10,15 @@ import {
 } from "@clerk/nextjs";
 import { Button } from "./ui/button";
 import { api } from "@/utils/api";
-import { PackItem } from "@prisma/client";
+import { useRouter } from "next/router";
 
 export default function Navbar() {
   const [state, setState] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState("");
   const user = useUser();
+  const router = useRouter();
 
-  const { data, refetch: searchPacks } = api.packs.search.useQuery(
+  const { refetch: searchPacks } = api.packs.search.useQuery(
     {
       value: searchValue,
     },
@@ -26,10 +27,6 @@ export default function Navbar() {
       enabled: false,
     },
   );
-
-  // const { data } = api.packs.getById.useQuery({
-  //   id,
-  // });
 
   return (
     <nav className="w-full border-b bg-white bg-opacity-80 md:border-0">
@@ -82,7 +79,8 @@ export default function Navbar() {
               onSubmit={async (e) => {
                 e.preventDefault();
                 const results = await searchPacks();
-                console.log("RESULTS", results);
+                if (results.status === "success" && results.data.length > 0)
+                  void router.push(`/search?value=${searchValue}`);
               }}
               className="flex items-center  space-x-2 rounded-md border p-2"
             >

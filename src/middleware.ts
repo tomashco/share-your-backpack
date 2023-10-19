@@ -5,6 +5,7 @@ export default authMiddleware({
   publicRoutes: [
     "/", 
     '/todo', 
+    '/search', 
     "/api/trpc/posts.getAll", 
     "/api/trpc/packs.getAll",
     "/api/trpc/packs.getById",
