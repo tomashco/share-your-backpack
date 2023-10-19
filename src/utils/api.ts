@@ -10,15 +10,25 @@ import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 import superjson from "superjson";
 
 import { type AppRouter } from "@/server/api/root";
-import toast from "react-hot-toast";
+import type { Toast } from "@/components/ui/use-toast";
 
-export function displayError(e: TRPCClientErrorLike<AppRouter>) {
+
+
+type toastType = (props: Toast) => void
+
+export function displayError(e: TRPCClientErrorLike<AppRouter>, toast: toastType) {
   const errorMessage = e.data?.code;
   console.log("ERROR MESSAGE: ", e.data);
   if (errorMessage) {
-    toast.error(errorMessage);
-  } else {
-    toast.error("Failed to create! Please try again later.");
+    toast({
+      description: errorMessage,
+      variant: 'destructive'
+      });
+    } else {
+    toast({
+      description: "Failed to create! Please try again later.",
+      variant: 'destructive'
+      });
   }
 }
 

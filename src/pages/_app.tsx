@@ -1,6 +1,6 @@
 import { type AppProps } from "next/app";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 import { api } from "@/utils/api";
 
@@ -9,7 +9,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ClerkProvider {...pageProps}>
       <Component {...pageProps} />
-      <Toaster position="bottom-center" />
+      <Toaster />
     </ClerkProvider>
   );
 }

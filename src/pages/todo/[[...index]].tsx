@@ -1,6 +1,5 @@
 import { type RouterOutputs, api, displayError } from "@/utils/api";
 import { useUser } from "@clerk/nextjs";
-import { toast } from "react-hot-toast";
 import RootLayout from "@/components/layouts/RootLayout";
 import { LoadingSpinner } from "@/components/loading";
 import { useState } from "react";
@@ -9,6 +8,7 @@ import { type Post } from "@prisma/client";
 import Image from "next/image";
 import { Header } from "@/components/header";
 import PageLayout from "@/components/layouts/PageLayout";
+import { useToast } from "@/components/ui/use-toast";
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number];
 
@@ -24,12 +24,13 @@ export default function TodoPage() {
   const [editPostId, setEditPostId] = useState("");
   const ctx = api.useContext();
   const user = useUser();
+  const { toast } = useToast();
 
   const { mutate: deletePost } = api.posts.delete.useMutation({
     onSuccess: () => {
       void ctx.posts.getAll.invalidate();
     },
-    onError: (e) => displayError(e),
+    onError: (e) => displayError(e, toast),
   });
 
   const CreatePostWizard = ({ post = emptyPost }: { post?: Post }) => {
@@ -49,9 +50,15 @@ export default function TodoPage() {
         onError: (e) => {
           const errorMessage = e.data?.zodError?.fieldErrors.content;
           if (errorMessage?.[0]) {
-            toast.error(errorMessage[0]);
+            toast({
+              description: errorMessage[0],
+              variant: "destructive",
+            });
           } else {
-            toast.error("Failed to post! Please try again later.");
+            toast({
+              description: "Failed to post! Please try again later.",
+              variant: "destructive",
+            });
           }
         },
       });
@@ -62,9 +69,15 @@ export default function TodoPage() {
         onError: (e) => {
           const errorMessage = e.data?.code;
           if (errorMessage) {
-            toast.error(errorMessage);
+            toast({
+              description: errorMessage,
+              variant: "destructive",
+            });
           } else {
-            toast.error("Failed to delete! Please try again later.");
+            toast({
+              description: "Failed to delete! Please try again later.",
+              variant: "destructive",
+            });
           }
         },
       });

@@ -11,7 +11,6 @@ import {
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
-import toast from "react-hot-toast";
 import { type PackItem } from "@prisma/client";
 import PageLayout from "@/components/layouts/PageLayout";
 import {
@@ -23,6 +22,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 enum sortCriteria {
   category = "category",
@@ -45,6 +45,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
     new Set(data?.packItems.map((item) => item.location)),
   );
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
 
   const allSorts = {
     category: categories,
@@ -58,9 +59,15 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
     onError: (e) => {
       const errorMessage = e.data?.code;
       if (errorMessage) {
-        toast.error(errorMessage);
+        toast({
+          description: errorMessage,
+          variant: "destructive",
+        });
       } else {
-        toast.error("Failed to delete! Please try again later.");
+        toast({
+          description: "Failed to delete! Please try again later.",
+          variant: "destructive",
+        });
       }
     },
   });
@@ -90,6 +97,8 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
           id={item.id}
           packId={id}
           oldName={item.name}
+          oldCategory={item.category}
+          oldLocation={item.location}
           action={() => setEditItem("")}
         />
       ) : (
@@ -185,6 +194,17 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
           </>
         ))}
         {isEditable && <AddPackItemsForm id={id} />}
+        <Button
+          className="my-3"
+          onClick={() => {
+            void navigator.clipboard.writeText(window.location.href);
+            toast({
+              description: "Pack copied to clipboard!",
+            });
+          }}
+        >
+          Share the backpack!
+        </Button>
       </PageLayout>
     </RootLayout>
   );

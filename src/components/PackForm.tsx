@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { api, displayError } from "@/utils/api";
 import { cn } from "@/utils";
 import { Textarea } from "./ui/textarea";
+import { useToast } from "./ui/use-toast";
 
 const itemSchema = z.object({
   name: z.string().min(2, {
@@ -36,13 +37,14 @@ const packSchema = z.object({
 
 export function CreatePackForm() {
   const ctx = api.useContext();
+  const { toast } = useToast();
 
   const { mutate: createPack } = api.packs.createPack.useMutation({
     onSuccess: () => {
       void ctx.packs.getAll.invalidate();
       form.reset();
     },
-    onError: (e) => displayError(e),
+    onError: (e) => displayError(e, toast),
   });
 
   const form = useForm<z.infer<typeof packSchema>>({
@@ -59,7 +61,7 @@ export function CreatePackForm() {
     mode: "onChange",
   });
 
-  const { fields, append } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     name: "packItems",
     control: form.control,
   });
@@ -71,58 +73,64 @@ export function CreatePackForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="prose">
+        <div className="prose my-3">
           <h1>Add a new pack</h1>
         </div>
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pack Name</FormLabel>
-              <FormControl>
-                <Input placeholder="New Pack 2043" {...field} />
-              </FormControl>
-              <FormDescription>This is your pack name.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tour description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Just write something about your trail!"
-                  className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div>
+        <div className="space-y-3">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Pack Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="New Pack 2043" {...field} />
+                </FormControl>
+                <FormDescription>This is your pack name.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tour description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Just write something about your trail!"
+                    className="resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div>
+            <FormLabel>Pack Items</FormLabel>
+            <FormDescription>Add all the items of your pack.</FormDescription>
+          </div>
           {fields.map((field, index) => (
             <FormField
               control={form.control}
               key={field.id}
               name={`packItems.${index}.name`}
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(index !== 0 && "sr-only")}>
-                    Pack Items
-                  </FormLabel>
-                  <FormDescription className={cn(index !== 0 && "sr-only")}>
-                    Add all the items of your pack.
-                  </FormDescription>
+                <FormItem className="flex items-center space-x-3">
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => remove(index)}
+                  >
+                    Remove
+                  </Button>
                 </FormItem>
               )}
             />
@@ -137,7 +145,9 @@ export function CreatePackForm() {
             Add pack item
           </Button>
         </div>
-        <Button type="submit">Submit</Button>
+        <Button className="my-3" type="submit">
+          Submit
+        </Button>
       </form>
     </Form>
   );
@@ -155,6 +165,7 @@ export function UpdatePackInfo({
   action: () => void;
 }) {
   const ctx = api.useContext();
+  const { toast } = useToast();
 
   const { mutate: updatePack } = api.packs.editPack.useMutation({
     onSuccess: () => {
@@ -162,7 +173,7 @@ export function UpdatePackInfo({
       form.reset();
       action();
     },
-    onError: (e) => displayError(e),
+    onError: (e) => displayError(e, toast),
   });
 
   const form = useForm<z.infer<typeof packSchema>>({
@@ -181,41 +192,43 @@ export function UpdatePackInfo({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex space-x-2">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pack Name:</FormLabel>
-              <FormControl>
-                <Input
-                  className="border-none shadow-none"
-                  placeholder={oldName}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tour description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder={oldDescription}
-                  className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
+        <div className="prose flex w-full flex-col space-y-3">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Pack Name:</FormLabel>
+                <FormControl>
+                  <Input
+                    className="border-none shadow-none"
+                    placeholder={oldName}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tour description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder={oldDescription}
+                    className="resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit">Submit</Button>
+        </div>
       </form>
     </Form>
   );
@@ -225,14 +238,19 @@ export function UpdatePackItemForm({
   id,
   packId,
   oldName,
+  oldCategory,
+  oldLocation,
   action,
 }: {
   id: string;
   packId: string;
   oldName: string;
+  oldCategory: string;
+  oldLocation: string;
   action: () => void;
 }) {
   const ctx = api.useContext();
+  const { toast } = useToast();
 
   const { mutate: updatePackItem } = api.packs.editPackItem.useMutation({
     onSuccess: () => {
@@ -240,15 +258,15 @@ export function UpdatePackItemForm({
       form.reset();
       action();
     },
-    onError: (e) => displayError(e),
+    onError: (e) => displayError(e, toast),
   });
 
   const form = useForm<z.infer<typeof itemSchema>>({
     resolver: zodResolver(itemSchema),
     defaultValues: {
-      name: "",
-      category: "",
-      location: "",
+      name: oldName,
+      category: oldCategory,
+      location: oldLocation,
     },
     mode: "onChange",
   });
@@ -315,12 +333,13 @@ export function UpdatePackItemForm({
 
 export function AddPackItemsForm({ id }: { id: string }) {
   const ctx = api.useContext();
+  const { toast } = useToast();
 
   const { mutate: addPackItems } = api.packs.addPackItems.useMutation({
     onSuccess: () => {
       void ctx.packs.getById.invalidate();
     },
-    onError: (e) => displayError(e),
+    onError: (e) => displayError(e, toast),
   });
 
   const form = useForm<z.infer<typeof packItemSchema>>({

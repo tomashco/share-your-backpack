@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { Toaster } from "../ui/toaster";
 
 export default function RootLayout({
   children,
@@ -16,6 +17,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="h-screen">{children}</main>
+      <Toaster />
     </section>
   );
 }
