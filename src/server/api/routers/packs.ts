@@ -73,10 +73,10 @@ export const packsRouter = createTRPCRouter({
       const result = await ctx.prisma.pack.findMany({
         where: {
           name: {
-            search: input.value,
+            search: `${input.value}*`,
           },
           description: {
-            search: input.value,
+            search: `${input.value}*`,
           },
         },
       })

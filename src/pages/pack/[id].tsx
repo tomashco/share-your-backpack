@@ -129,11 +129,11 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
     <RootLayout>
       <Header
         pageTitle={
-          <div className="flex justify-center">
+          <>
             <span className="text-sagegreen">{titleArray[0]}</span>
             &nbsp;
             {titleArray.splice(1).join(" ")}{" "}
-          </div>
+          </>
         }
       />
       <PageLayout>

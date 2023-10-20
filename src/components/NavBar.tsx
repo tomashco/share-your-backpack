@@ -11,12 +11,14 @@ import {
 import { Button } from "./ui/button";
 import { api } from "@/utils/api";
 import { useRouter } from "next/router";
+import { useToast } from "./ui/use-toast";
 
 export default function Navbar() {
   const [state, setState] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState("");
   const user = useUser();
   const router = useRouter();
+  const { toast } = useToast();
 
   const { refetch: searchPacks } = api.packs.search.useQuery(
     {
@@ -78,9 +80,22 @@ export default function Navbar() {
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
-                const results = await searchPacks();
-                if (results.status === "success" && results.data.length > 0)
-                  void router.push(`/search?value=${searchValue}`);
+                if (!searchValue) {
+                  toast({
+                    description: "Type a search value",
+                    variant: "destructive",
+                  });
+                } else {
+                  const results = await searchPacks();
+                  if (results.status === "success" && results.data.length > 0) {
+                    void router.push(`/search?value=${searchValue}`);
+                  } else {
+                    toast({
+                      description: "No search results found!",
+                      variant: "destructive",
+                    });
+                  }
+                }
               }}
               className="flex items-center  space-x-2 rounded-md border p-2"
             >
