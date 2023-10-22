@@ -12,6 +12,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 import { prisma } from "@/server/db";
 import { getAuth } from "@clerk/nextjs/server";
+import {s3} from "../aws/s3"
 
 /**
  * 1. CONTEXT
@@ -36,6 +37,7 @@ export const createTRPCContext = (opts: CreateNextContextOptions) => {
   return {
     prisma,
     userId,
+    s3
   };
 };
 

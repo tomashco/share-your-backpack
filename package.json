@@ -17,6 +17,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.433.0",
+    "@aws-sdk/s3-request-presigner": "^3.433.0",
     "@clerk/nextjs": "^4.23.5",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",
@@ -36,11 +38,13 @@
     "@types/uuid": "^9.0.4",
     "@upstash/ratelimit": "^0.4.4",
     "@upstash/redis": "^1.22.0",
+    "axios": "^1.5.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "next": "^13.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.47.0",
     "superjson": "^1.13.1",
     "tailwind-merge": "^1.14.0",
