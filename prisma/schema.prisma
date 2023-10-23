@@ -19,14 +19,14 @@ model Post {
 }
 
 model Pack {
-  id           String     @id @unique @default(cuid())
-  createdAt    DateTime   @default(now())
-  name         String     @db.VarChar(255)
-  authorId     String
-  description  String?    @db.Text
-  activityType String?    @default("Other") @db.VarChar(255)
-  gpxFile      String?    @default("") @db.VarChar(255)
-  packItems    PackItem[]
+  id          String     @id @unique @default(cuid())
+  createdAt   DateTime   @default(now())
+  name        String     @db.VarChar(255)
+  authorId    String
+  description String?    @db.Text
+  // activityType String?    @default("Other") @db.VarChar(255)
+  // gpxFile      String?    @default("") @db.VarChar(255)
+  packItems   PackItem[]
 
   @@fulltext([name, description])
 }
