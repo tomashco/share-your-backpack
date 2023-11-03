@@ -3,24 +3,37 @@ import { useDropzone } from "react-dropzone";
 import axios from "axios";
 
 import { api } from "../utils/api";
+import { useToast } from "./ui/use-toast";
 
-export const StandardDropzone = () => {
+export const StandardDropzone = ({ packId }: { packId: string }) => {
   const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
   const { mutateAsync: fetchPresignedUrls } =
     api.s3.getStandardUploadPresignedUrl.useMutation();
   const [submitDisabled, setSubmitDisabled] = useState(true);
-  const apiUtils = api.useContext();
+  const ctx = api.useContext();
 
+  const { toast } = useToast();
   const { getRootProps, getInputProps, isDragActive, acceptedFiles } =
     useDropzone({
       maxFiles: 1,
-      maxSize: 5 * 2 ** 30, // roughly 5GB
+      maxSize: 5 * 2 ** 20, // roughly 5MB
       multiple: false,
+      accept: {
+        file: [".gpx"],
+      },
+      onDropRejected: (_files, _event) => {
+        toast({
+          title: "The file is wrong",
+          description: "Only gpx files are accepted",
+          variant: "destructive",
+        });
+      },
       onDropAccepted: (files, _event) => {
         const file = files[0] as File;
 
         fetchPresignedUrls({
           key: file.name,
+          packId,
         })
           .then((url) => {
             setPresignedUrl(url);
@@ -43,24 +56,19 @@ export const StandardDropzone = () => {
   const handleSubmit = useCallback(async () => {
     if (acceptedFiles.length > 0 && presignedUrl !== null) {
       const file = acceptedFiles[0]!;
+
       await axios
         .put(presignedUrl, file.slice(), {
           headers: { "Content-Type": file.type },
         })
-        .then((response) => {
-          console.log(response);
-          console.log("Successfully uploaded ", file.name);
-        })
         .catch((err) => console.error(err));
       setSubmitDisabled(true);
-      await apiUtils.s3.getObjects.invalidate();
+      await ctx.s3.getObjects.invalidate();
     }
-  }, [acceptedFiles, apiUtils.s3.getObjects, presignedUrl]);
+  }, [acceptedFiles, ctx.s3.getObjects, presignedUrl]);
 
   return (
     <section>
-      <h2 className="text-lg font-semibold">Standard Dropzone</h2>
-      <p className="mb-3">Simple example for uploading one file at a time</p>
       <div {...getRootProps()} className="dropzone-container">
         <input {...getInputProps()} />
         {isDragActive ? (
@@ -69,14 +77,16 @@ export const StandardDropzone = () => {
           </div>
         ) : (
           <div className="flex h-full items-center justify-center font-semibold">
-            <p>Drag n drop file here, or click to select files</p>
+            <p>Drag&apos;n&apos;drop gpx file here, or click to select files</p>
           </div>
         )}
       </div>
-      <aside className="my-2">
-        <h4 className="font-semibold text-zinc-400">Files pending upload</h4>
-        <ul>{files}</ul>
-      </aside>
+      {acceptedFiles.length > 0 && (
+        <aside className="my-2">
+          <h4 className="font-semibold text-zinc-400">Files pending upload</h4>
+          <ul>{files}</ul>
+        </aside>
+      )}
       <button
         onClick={() => void handleSubmit()}
         disabled={

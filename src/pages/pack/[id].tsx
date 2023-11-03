@@ -1,5 +1,5 @@
 import type { GetStaticProps, NextPage } from "next";
-import { api } from "@/utils/api";
+import { type RouterOutputs, api } from "@/utils/api";
 import RootLayout from "@/components/layouts/RootLayout";
 import { Header } from "@/components/header";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
@@ -23,11 +23,56 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { StandardDropzone } from "@/components/StandardDropzone";
+import axios from "axios";
 
 enum sortCriteria {
   category = "category",
   location = "location",
 }
+
+// Lists the objects that have been uploaded to S3
+const UploadedObjects = ({
+  objects,
+}: {
+  objects: RouterOutputs["s3"]["getObjects"];
+}) => {
+  if (!objects || objects.length === 0)
+    return <div>No objects uploaded yet.</div>;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <h2 className="text-lg font-semibold">Uploaded Objects</h2>
+      {objects.map((object) => (
+        <div key={object.Key}>
+          <button
+            onClick={async () => {
+              await axios({
+                url: `https://share-your-backpack.s3.eu-west-1.amazonaws.com/${object.Key!}`,
+                method: "GET",
+                responseType: "blob",
+              }).then((response) => {
+                const url = window.URL.createObjectURL(
+                  new Blob([response.data]),
+                );
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute(
+                  "download",
+                  `https://share-your-backpack.s3.eu-west-1.amazonaws.com/${object.Key!}`,
+                );
+                document.body.appendChild(link);
+                link.click();
+              });
+            }}
+          >
+            {object.Key}
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   const [editItem, setEditItem] = useState("");
@@ -51,7 +96,9 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
     category: categories,
     location: locations,
   };
-
+  const { data: s3Objects, isLoading } = api.s3.getObjects.useQuery({
+    packId: id,
+  });
   const { mutate: deletePackItem } = api.packs.deletePackItem.useMutation({
     onSuccess: () => {
       void ctx.packs.getById.invalidate();
@@ -181,6 +228,12 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
           )}
         </div>
         <p className="prose">{data.description}</p>
+        {isEditable && s3Objects?.length === 0 && (
+          <StandardDropzone packId={id} />
+        )}
+        <div className="mt-12 flex justify-center">
+          {!isLoading && s3Objects && <UploadedObjects objects={s3Objects} />}
+        </div>
         {allSorts[selectedSort]?.map((sortName) => (
           <>
             <h1 className="drop-shadow-l text-xl font-extrabold text-primary">
