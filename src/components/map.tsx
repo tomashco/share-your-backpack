@@ -5,11 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Polyline } from "react-leaflet";
 
 // Main functions
-import {
-  parseGpxFile,
-  type PositionType,
-  type GpxDataType,
-} from "@/utils/mapMainFunctions";
+import { parseGpxFile, type PositionType } from "@/utils/mapMainFunctions";
 
 // Map's params
 const zoom = 9;
@@ -27,21 +23,21 @@ const mapViewFormatObj = {
 const MapDisplay = ({ packId }: { packId: string }) => {
   // States
   const [gpxData, setGpxData] = useState<PositionType[] | undefined>();
-  console.log("DATA: ", gpxData);
+
   useEffect(() => {
     async function setGpx() {
-      const parseGpxData: GpxDataType[] = await parseGpxFile(
+      const parseGpxData = await parseGpxFile(
         `https://share-your-backpack.s3.eu-west-1.amazonaws.com/${packId}`,
       );
 
       // Tracks positions
-      const trackPositions: PositionType[] = [parseGpxData[0]?.positions];
+      const trackPositions = [parseGpxData[0]?.positions];
 
       if (trackPositions) setGpxData(trackPositions);
     }
 
     setGpx().catch((err) => console.log("setGpx err: ", err));
-  }, []);
+  }, [packId]);
   return (
     <>
       {gpxData?.[0]?.[0] && (

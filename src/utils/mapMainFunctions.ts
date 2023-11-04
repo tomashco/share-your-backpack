@@ -1,6 +1,7 @@
-import axios from "axios";
+import axios, { type AxiosResponse } from "axios";
 
-export type PositionType = [number, number, number][] | undefined
+type Position = [number,number,number]
+export type PositionType = Position[] | undefined
 
 export type GpxDataType = {
   id: number,
@@ -9,110 +10,110 @@ export type GpxDataType = {
 }
 
 // Parse gpx file
-export async function parseGpxFile(gpxXmlFile) {
-  return new Promise(async (resolve, reject) => {
+export async function parseGpxFile(gpxXmlFile: string): Promise<GpxDataType[]> {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  return new Promise(async (resolve) => {
     try {
-      axios
-        .get(gpxXmlFile, {
-          "Content-Type": "application/xml; charset=utf-8"
-        })
-        .then(async (response) => {
+      await axios
+        .get(gpxXmlFile)
+        .then((response: AxiosResponse<string, unknown>) => {
+          
           // Gpx file string
-          var gpxStr = response.data;
+          let gpxStr = response.data;
 
           // Count lat & lon
-          var trkCount = gpxStr.match(/<trk>/g).length;
+          const trkCount = gpxStr.match(/<trk>/g)?.length;
 
           // While loop params
-          var i = 0;
-          var resultArray = [];
+          let i = 0;
+          const resultArray = [];
 
-          while (i < trkCount) {
-            // Number of total characters
-            let totalGpxStr = gpxStr.length;
+          if(trkCount)
+            while (i < trkCount) {
+              // Number of total characters
+              const totalGpxStr = gpxStr.length;
 
-            // Slice str to each <trk></trk> segment
-            let trkPosition = gpxStr.indexOf("<trk>");
-            let trkLastPosition = gpxStr.indexOf("</trk>") + "</trk>".length;
-            let trkStr = gpxStr.substring(trkPosition, trkLastPosition);
+              // Slice str to each <trk></trk> segment
+              const trkPosition = gpxStr.indexOf("<trk>");
+              const trkLastPosition = gpxStr.indexOf("</trk>") + "</trk>".length;
+              const trkStr = gpxStr.substring(trkPosition, trkLastPosition);
 
-            // If <trk></trk> is existing
-            if (trkPosition > 0) {
-              // Redefine the native string
-              gpxStr = gpxStr.substring(trkLastPosition, totalGpxStr);
+              // If <trk></trk> is existing
+              if (trkPosition > 0) {
+                // Redefine the native string
+                gpxStr = gpxStr.substring(trkLastPosition, totalGpxStr);
 
-              resultArray.push(trkStr);
+                resultArray.push(trkStr);
+              }
+
+              // Incrementation
+              i++;
             }
 
-            // Incrementation
-            i++;
-          }
-
           // Foreach loop params
-          var resultArrObj = [];
+          const resultArrObj = [];
 
           // Get all latitudes and longitudes data for each track
           for (let f = 0; f < resultArray.length; f++) {
             // Variables params
-            var track = resultArray[f];
+            let track = resultArray[f] ?? '';
 
             // Track's name
-            let namePosition =
-              resultArray[f].indexOf("<name>") + "<name>".length;
-            let nameLastPosition = resultArray[f].indexOf("</name>");
-            let trackName = resultArray[f].substring(
+            const namePosition = track.indexOf("<name>") + ("<name>".length);
+            const nameLastPosition = track.indexOf("</name>");
+            const trackName = track.substring(
               namePosition,
               nameLastPosition
             );
 
             // Params
-            var n = 0;
-            var arr = [];
+            let n = 0;
+            const arr = [];
 
             // Count lat & lon
-            var latLonCount = resultArray[f].match(/lat=/g).length;
+            const latLonCount = track.match(/lat=/g)?.length ?? 0;
 
             while (n < latLonCount) {
               // Number of total characters
-              let totalStr = track.length;
+              const totalStr = track.length;
 
               // Selection of string
-              var selectedStrPosition = track.indexOf("<trkpt");
-              var selectedStrLastPosition = track.indexOf("</trkpt>");
-              var selectedStr = track.substring(
+              const selectedStrPosition = track.indexOf("<trkpt");
+              const selectedStrLastPosition = track.indexOf("</trkpt>");
+              const selectedStr = track.substring(
                 selectedStrPosition,
                 selectedStrLastPosition
               );
 
               // Get elevations
-              var selectedElevationStrPosition =
+              const selectedElevationStrPosition =
                 track.indexOf("<ele>") + "<ele>".length;
-              var selectedElevationStrLastPosition = track.indexOf("</ele>");
-              var selectedElevationsStr = track.substring(
+              const selectedElevationStrLastPosition = track.indexOf("</ele>");
+              const selectedElevationsStr = track.substring(
                 selectedElevationStrPosition,
                 selectedElevationStrLastPosition
               );
-              var eleValue = parseFloat(selectedElevationsStr);
+              const eleValue = parseFloat(selectedElevationsStr);
 
               // Get latitude and longitude between double quotes from the string
-              var reg = new RegExp(/"(.*?)"/g); // Double quotes included
-              var matches = selectedStr.match(reg);
-              var matchesArr = [];
+              const reg = new RegExp(/"(.*?)"/g); // Double quotes included
+              const matches = selectedStr.match(reg) ?? '';
+              const matchesArr = [];
 
               // Record matches
-              for (let match of matches) {
+              for (const match of matches) {
                 // Match convert to number format
-                let v = parseFloat(match.replace(/['"]+/g, ""));
+                const v = parseFloat(match.replace(/['"]+/g, ""));
 
                 // Record
                 matchesArr.push(v);
               }
 
               // Latitude value
-              let latValue = matchesArr[0];
+              const latValue = matchesArr[0];
 
               // Longitude value
-              let lonValue = matchesArr[1];
+              const lonValue = matchesArr[1];
 
               // If <trkpt></trkpt> is existing
               if (selectedStrPosition > 0) {
@@ -129,12 +130,12 @@ export async function parseGpxFile(gpxXmlFile) {
               // While loop end
               if (n === latLonCount) {
                 // Remove duplicated values
-                let stringArray = arr.map(JSON.stringify);
-                let uniqueStringArray = new Set(stringArray);
-                let uniqueArray = Array.from(uniqueStringArray, JSON.parse);
+                const stringArray = arr.map(el => JSON.stringify(el));
+                const uniqueStringArray = new Set(stringArray);
+                const uniqueArray = Array.from(uniqueStringArray).map((el) => JSON.parse(el) as Position)
 
                 // Result object
-                let obj = {
+                const obj = {
                   id: f,
                   name: trackName,
                   positions: uniqueArray,
@@ -150,10 +151,10 @@ export async function parseGpxFile(gpxXmlFile) {
               resolve(resultArrObj);
             }
           }
-        });
-    } catch (error) {
-      console.error(":( parseGpxFile error");
-      reject(console.log);
-    }
-  })
+        }).catch(err => console.log(err))
+  }
+  catch(error) {
+    console.error(":( parseGpxFile error");
+  }
+})
 }

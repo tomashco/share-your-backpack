@@ -62,7 +62,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
     category: categories,
     location: locations,
   };
-  const { data: s3Objects, isLoading } = api.s3.getObjects.useQuery({
+  const { data: s3Objects } = api.s3.getObjects.useQuery({
     packId: id,
   });
   const { mutate: deletePackItem } = api.packs.deletePackItem.useMutation({
@@ -84,7 +84,6 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
       }
     },
   });
-  console.log("s3objects: ", s3Objects);
 
   // use Escape to close the Edit Item or edit Title
   useEffect(() => {
