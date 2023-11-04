@@ -201,7 +201,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
           <Map packId={s3Objects[0]?.Key} />
         )}
         {allSorts[selectedSort]?.map((sortName) => (
-          <>
+          <div key={sortName}>
             <h1 className="drop-shadow-l text-xl font-extrabold text-primary">
               {sortName ? sortName : "TBD"}
             </h1>
@@ -210,7 +210,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
               .map((item) => (
                 <ItemData key={item.id} item={item} />
               ))}
-          </>
+          </div>
         ))}
         {isEditable && <AddPackItemsForm id={id} />}
         <Button

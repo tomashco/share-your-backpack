@@ -7,9 +7,11 @@ export default authMiddleware({
     '/todo', 
     '/search', 
     "/api/trpc/packs.getAll,s3.getObjects",
+    "/api/trpc/packs.getById,s3.getObjects",
     "/api/trpc/packs.getAll",
     "/api/trpc/packs.getById",
     "/api/trpc/packs.search", 
+    "/api/trpc/s3.getObjects", 
     '/pack/(.*)'
   ],
 });
