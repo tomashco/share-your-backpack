@@ -7,12 +7,22 @@ import Link from "next/link";
 import Image from "next/image";
 import PageLayout from "@/components/layouts/PageLayout";
 import { useUser } from "@clerk/nextjs";
+import { useBugpilot } from "@bugpilot/next";
+import { useEffect } from "react";
 
 export default function Home() {
   const { data: packs } = api.packs.getAll.useQuery();
-
+  const { identify } = useBugpilot();
   const user = useUser();
   const isEditable = !!user?.user?.id;
+
+  useEffect(() => {
+    identify({
+      id: user.user?.id,
+      email: user.user?.primaryEmailAddress?.emailAddress,
+      fullName: user.user?.fullName,
+    });
+  }, [identify, user]);
 
   return (
     <RootLayout>

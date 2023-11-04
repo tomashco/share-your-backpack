@@ -19,6 +19,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.433.0",
     "@aws-sdk/s3-request-presigner": "^3.433.0",
+    "@bugpilot/next": "^0.1.0",
     "@clerk/nextjs": "^4.23.5",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",

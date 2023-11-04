@@ -21,6 +21,7 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: z.string(),
     BUCKET_NAME: z.string(),
     REGION: z.string(),
+    BUGPILOT_ID: z.string(),
   },
 
   /**
@@ -43,6 +44,7 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     BUCKET_NAME: process.env.BUCKET_NAME,
     REGION: process.env.REGION,
+    BUGPILOT_ID: process.env.BUGPILOT_ID,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
