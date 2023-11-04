@@ -1,5 +1,5 @@
 import type { GetStaticProps, NextPage } from "next";
-import { type RouterOutputs, api } from "@/utils/api";
+import { api } from "@/utils/api";
 import RootLayout from "@/components/layouts/RootLayout";
 import { Header } from "@/components/header";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
@@ -8,7 +8,7 @@ import {
   UpdatePackInfo,
   UpdatePackItemForm,
 } from "@/components/PackForm";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 import { type PackItem } from "@prisma/client";
@@ -24,55 +24,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { StandardDropzone } from "@/components/StandardDropzone";
-import axios from "axios";
+import dynamic from "next/dynamic";
 
 enum sortCriteria {
   category = "category",
   location = "location",
 }
-
-// Lists the objects that have been uploaded to S3
-const UploadedObjects = ({
-  objects,
-}: {
-  objects: RouterOutputs["s3"]["getObjects"];
-}) => {
-  if (!objects || objects.length === 0)
-    return <div>No objects uploaded yet.</div>;
-
-  return (
-    <div className="flex flex-col gap-2">
-      <h2 className="text-lg font-semibold">Uploaded Objects</h2>
-      {objects.map((object) => (
-        <div key={object.Key}>
-          <button
-            onClick={async () => {
-              await axios({
-                url: `https://share-your-backpack.s3.eu-west-1.amazonaws.com/${object.Key!}`,
-                method: "GET",
-                responseType: "blob",
-              }).then((response) => {
-                const url = window.URL.createObjectURL(
-                  new Blob([response.data]),
-                );
-                const link = document.createElement("a");
-                link.href = url;
-                link.setAttribute(
-                  "download",
-                  `https://share-your-backpack.s3.eu-west-1.amazonaws.com/${object.Key!}`,
-                );
-                document.body.appendChild(link);
-                link.click();
-              });
-            }}
-          >
-            {object.Key}
-          </button>
-        </div>
-      ))}
-    </div>
-  );
-};
 
 const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   const [editItem, setEditItem] = useState("");
@@ -91,6 +48,15 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   );
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+
+  const Map = useMemo(
+    () =>
+      dynamic(() => import("../../components/map"), {
+        loading: () => <p>A map is loading</p>,
+        ssr: false,
+      }),
+    [],
+  );
 
   const allSorts = {
     category: categories,
@@ -118,6 +84,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
       }
     },
   });
+  console.log("s3objects: ", s3Objects);
 
   // use Escape to close the Edit Item or edit Title
   useEffect(() => {
@@ -231,9 +198,9 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
         {isEditable && s3Objects?.length === 0 && (
           <StandardDropzone packId={id} />
         )}
-        <div className="mt-12 flex justify-center">
-          {!isLoading && s3Objects && <UploadedObjects objects={s3Objects} />}
-        </div>
+        {typeof window !== "undefined" && s3Objects?.[0]?.Key && (
+          <Map packId={s3Objects[0]?.Key} />
+        )}
         {allSorts[selectedSort]?.map((sortName) => (
           <>
             <h1 className="drop-shadow-l text-xl font-extrabold text-primary">

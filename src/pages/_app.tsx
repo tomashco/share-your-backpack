@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { api } from "@/utils/api";
 
 import "@/styles/globals.css";
+
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ClerkProvider {...pageProps}>
