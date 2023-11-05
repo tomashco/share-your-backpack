@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Polyline } from "react-leaflet";
 
 // Main functions
-import { parseGpxFile, type PositionType } from "@/utils/mapMainFunctions";
+import { parseGpxFile, type Position } from "@/utils/mapMainFunctions";
 
 // Map's params
 const zoom = 9;
@@ -22,34 +22,32 @@ const mapViewFormatObj = {
 // MAP DISPLAY COMPONENT
 const MapDisplay = ({ packId }: { packId: string }) => {
   // States
-  const [gpxData, setGpxData] = useState<PositionType[] | undefined>();
+  const [gpxData, setGpxData] = useState<Position[] | undefined>();
 
   useEffect(() => {
     async function setGpx() {
-      const parseGpxData = await parseGpxFile(
+      const trackPositions = await parseGpxFile(
         `https://share-your-backpack.s3.eu-west-1.amazonaws.com/${packId}`,
       );
 
-      // Tracks positions
-      const trackPositions = [parseGpxData[0]?.positions];
-
-      if (trackPositions) setGpxData(trackPositions);
+      if (trackPositions && trackPositions.length > 0)
+        setGpxData(trackPositions);
     }
 
     setGpx().catch((err) => console.log("setGpx err: ", err));
   }, [packId]);
   return (
     <>
-      {gpxData?.[0]?.[0] && (
+      {gpxData?.[0] && (
         <MapContainer
-          center={[gpxData[0][0][0], gpxData[0][0][1]]}
+          center={[gpxData[0][0], gpxData[0][1]]}
           zoom={zoom}
           style={style}
         >
           return (
           <Polyline
             pathOptions={{ fillColor: "red", color: "#0000ff" }}
-            positions={gpxData[0]}
+            positions={gpxData}
           />
           );
           <TileLayer

@@ -19,7 +19,11 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="h-screen">
-        <Bugpilot workspaceId={env.BUGPILOT_ID} user={null} enabled={true}>
+        <Bugpilot
+          workspaceId={env.NEXT_PUBLIC_BUGPILOT_ID}
+          user={null}
+          enabled={true}
+        >
           {children}
         </Bugpilot>
       </main>
