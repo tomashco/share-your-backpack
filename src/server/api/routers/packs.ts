@@ -134,6 +134,44 @@ export const packsRouter = createTRPCRouter({
       }
       return "ok";
     }),
+
+
+    deletePack: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    ).mutation(async ({ctx, input}) => {
+      const authorId = ctx.userId;
+
+      const { success } = await ratelimit.limit(authorId);
+
+      if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+      try {
+        await ctx.prisma.$transaction(
+          [
+            ctx.prisma.pack.update({
+              where: {
+                id: input.id,
+              },
+              data: {
+                packItems: {
+                  deleteMany: {},
+                },
+              },
+              include: {
+                packItems: true,
+              },
+            }),
+            ctx.prisma.pack.delete({
+              where: { id: input.id, authorId },
+            })
+          ],)
+      } catch (err) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      return "ok";
+    }),
     addPackItems: privateProcedure
     .input(
       z.object({

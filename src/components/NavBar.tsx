@@ -2,12 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Bars4Icon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import {
-  SignInButton,
-  SignOutButton,
-  UserButton,
-  useUser,
-} from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "./ui/button";
 import { api } from "@/utils/api";
 import { useRouter } from "next/router";

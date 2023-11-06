@@ -1,6 +1,5 @@
 import Head from "next/head";
 import { Toaster } from "../ui/toaster";
-import { env } from "@/env.mjs";
 
 export default function RootLayout({
   children,

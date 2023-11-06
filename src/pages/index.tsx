@@ -7,7 +7,6 @@ import Link from "next/link";
 import Image from "next/image";
 import PageLayout from "@/components/layouts/PageLayout";
 import { useUser } from "@clerk/nextjs";
-import { useEffect } from "react";
 
 export default function Home() {
   const { data: packs } = api.packs.getAll.useQuery();

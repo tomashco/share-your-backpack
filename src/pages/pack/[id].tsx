@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { StandardDropzone } from "@/components/StandardDropzone";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 
 enum sortCriteria {
   category = "category",
@@ -48,6 +49,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   );
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const Map = useMemo(
     () =>
@@ -68,6 +70,25 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   const { mutate: deletePackItem } = api.packs.deletePackItem.useMutation({
     onSuccess: () => {
       void ctx.packs.getById.invalidate();
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.code;
+      if (errorMessage) {
+        toast({
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          description: "Failed to delete! Please try again later.",
+          variant: "destructive",
+        });
+      }
+    },
+  });
+  const { mutate: deletePack } = api.packs.deletePack.useMutation({
+    onSuccess: () => {
+      void router.push("/");
     },
     onError: (e) => {
       const errorMessage = e.data?.code;
@@ -173,24 +194,31 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
             </span>
           </label>
           {isEditable && (
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger>
-                <Button variant="secondary">Edit Pack</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Edit pack informations</DialogTitle>
-                  <DialogDescription>
-                    <UpdatePackInfo
-                      id={id}
-                      oldName={data.name}
-                      oldDescription={data.description ?? ""}
-                      action={() => setOpen(false)}
-                    />
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+            <>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger>
+                  <Button variant="secondary">Edit Pack</Button>
+                </DialogTrigger>
+                <DialogContent style={{ zIndex: 1000 }}>
+                  <DialogHeader>
+                    <DialogTitle>Edit pack informations</DialogTitle>
+                    <DialogDescription>
+                      <UpdatePackInfo
+                        id={id}
+                        oldName={data.name}
+                        oldDescription={data.description ?? ""}
+                        action={() => setOpen(false)}
+                      />
+                      <div className="w-full py-3">
+                        <Button onClick={() => deletePack({ id })}>
+                          Delete Pack
+                        </Button>
+                      </div>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </>
           )}
         </div>
         <p className="prose">{data.description}</p>

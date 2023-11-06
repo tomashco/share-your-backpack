@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -50,7 +49,6 @@ export function CreatePackForm() {
       },
       onError: (e) => displayError(e, toast),
     });
-  console.log("packData: ", packData);
 
   useEffect(() => {
     if (packData?.id) {
@@ -63,19 +61,9 @@ export function CreatePackForm() {
     defaultValues: {
       name: "",
       description: "",
-      // packItems: [
-      //   {
-      //     name: "a generic item",
-      //   },
-      // ],
     },
     mode: "onChange",
   });
-
-  // const { fields, append, remove } = useFieldArray({
-  //   name: "packItems",
-  //   control: form.control,
-  // });
 
   function onSubmit(values: z.infer<typeof packSchema>) {
     createPack({ ...values });
