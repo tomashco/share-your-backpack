@@ -29,7 +29,6 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
   */
  client: {
-    NEXT_PUBLIC_BUGPILOT_ID: z.string(),
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
   },
 
@@ -44,7 +43,6 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     BUCKET_NAME: process.env.BUCKET_NAME,
     REGION: process.env.REGION,
-    NEXT_PUBLIC_BUGPILOT_ID: process.env.NEXT_PUBLIC_BUGPILOT_ID
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

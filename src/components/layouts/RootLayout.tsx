@@ -1,6 +1,5 @@
 import Head from "next/head";
 import { Toaster } from "../ui/toaster";
-import { Bugpilot } from "@bugpilot/next";
 import { env } from "@/env.mjs";
 
 export default function RootLayout({
@@ -18,15 +17,7 @@ export default function RootLayout({
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="h-screen">
-        <Bugpilot
-          workspaceId={env.NEXT_PUBLIC_BUGPILOT_ID}
-          user={null}
-          enabled={true}
-        >
-          {children}
-        </Bugpilot>
-      </main>
+      <main className="h-screen">{children}</main>
       <Toaster />
     </section>
   );

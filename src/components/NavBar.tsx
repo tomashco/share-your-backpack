@@ -63,20 +63,6 @@ export default function Navbar() {
           }`}
         >
           <ul className="items-center justify-end space-y-8 md:flex md:space-x-6 md:space-y-0">
-            <li>
-              <UserButton afterSignOutUrl="/" />
-            </li>
-            <li>
-              {user.isSignedIn ? (
-                <SignOutButton>
-                  <Button variant="secondary">Sign out</Button>
-                </SignOutButton>
-              ) : (
-                <SignInButton>
-                  <Button variant="secondary">Sign in!</Button>
-                </SignInButton>
-              )}
-            </li>
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
@@ -110,6 +96,16 @@ export default function Navbar() {
                 onChange={(e) => setSearchValue(e.target.value)}
               />
             </form>
+            <li>
+              <UserButton afterSignOutUrl="/" />
+            </li>
+            <li>
+              {!user.isSignedIn && (
+                <SignInButton>
+                  <Button variant="secondary">Sign in!</Button>
+                </SignInButton>
+              )}
+            </li>
           </ul>
         </div>
       </div>
