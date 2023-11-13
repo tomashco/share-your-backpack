@@ -17,6 +17,7 @@ import { Textarea } from "./ui/textarea";
 import { useToast } from "./ui/use-toast";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { Skeleton } from "./ui/skeleton";
 
 const itemSchema = z.object({
   name: z.string().min(2, {
@@ -72,7 +73,7 @@ export function CreatePackForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="prose my-3">
+        <div className="my-3">
           <h1>Add a new pack</h1>
         </div>
         <div className="space-y-3">
@@ -129,7 +130,7 @@ export function UpdatePackInfo({
   const ctx = api.useContext();
   const { toast } = useToast();
 
-  const { mutate: updatePack } = api.packs.editPack.useMutation({
+  const { mutate: updatePack, isLoading } = api.packs.editPack.useMutation({
     onSuccess: () => {
       void ctx.packs.getById.invalidate();
       form.reset();
@@ -151,46 +152,46 @@ export function UpdatePackInfo({
     updatePack({ id, ...values });
   }
 
+  if (isLoading) return <div>is loading</div>;
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex space-x-2">
-        <div className="prose flex w-full flex-col space-y-3">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Pack Name:</FormLabel>
-                <FormControl>
-                  <Input
-                    className="border-none shadow-none"
-                    placeholder={oldName}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tour description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder={oldDescription}
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit">Submit</Button>
-        </div>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="w-[200px]">Pack Name:</FormLabel>
+              <FormControl>
+                <Input
+                  className="border-none shadow-none"
+                  placeholder={oldName}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="w-[200px]">Tour description</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder={oldDescription}
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+              <Button type="submit">Update</Button>
+            </FormItem>
+          )}
+        />
       </form>
     </Form>
   );

@@ -16,7 +16,7 @@ export default function RootLayout({
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="h-screen">{children}</main>
+      <main>{children}</main>
       <Toaster />
     </section>
   );

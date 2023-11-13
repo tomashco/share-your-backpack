@@ -4,6 +4,7 @@ import axios from "axios";
 
 import { api } from "../utils/api";
 import { useToast } from "./ui/use-toast";
+import { Button } from "./ui/button";
 
 export const StandardDropzone = ({ packId }: { packId: string }) => {
   const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
@@ -68,7 +69,7 @@ export const StandardDropzone = ({ packId }: { packId: string }) => {
   }, [acceptedFiles, ctx.s3.getObjects, presignedUrl]);
 
   return (
-    <section>
+    <section className="space-y-3">
       <div {...getRootProps()} className="dropzone-container">
         <input {...getInputProps()} />
         {isDragActive ? (
@@ -83,11 +84,11 @@ export const StandardDropzone = ({ packId }: { packId: string }) => {
       </div>
       {acceptedFiles.length > 0 && (
         <aside className="my-2">
-          <h4 className="font-semibold text-zinc-400">Files pending upload</h4>
+          <h4 className="font-semibold text-zinc-400">Pending upload</h4>
           <ul>{files}</ul>
         </aside>
       )}
-      <button
+      <Button
         onClick={() => void handleSubmit()}
         disabled={
           presignedUrl === null || acceptedFiles.length === 0 || submitDisabled
@@ -95,7 +96,7 @@ export const StandardDropzone = ({ packId }: { packId: string }) => {
         className="submit-button"
       >
         Upload
-      </button>
+      </Button>
     </section>
   );
 };
