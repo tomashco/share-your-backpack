@@ -6,8 +6,7 @@ import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { UpdatePackInfo, UpdatePackItemForm } from "@/components/PackForm";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
-import { type PackItem } from "@prisma/client";
+import { TrashIcon } from "@radix-ui/react-icons";
 import PageLayout from "@/components/layouts/PageLayout";
 import {
   Dialog,
@@ -22,28 +21,22 @@ import { useToast } from "@/components/ui/use-toast";
 import { StandardDropzone } from "@/components/StandardDropzone";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-enum sortCriteria {
-  category = "category",
-  location = "location",
-}
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   const [editItem, setEditItem] = useState("");
-  const [selectedSort, setSelectedSort] = useState(sortCriteria.category);
-  const { data } = api.packs.getById.useQuery({
+  const { data, isLoading } = api.packs.getById.useQuery({
     id,
   });
-  const user = useUser();
+  const { user, isLoaded: userIsLoaded } = useUser();
   const ctx = api.useContext();
-  const isEditable = data?.authorId === user?.user?.id;
-  const categories = Array.from(
-    new Set(data?.packItems.map((item) => item.category)),
-  );
-  const locations = Array.from(
-    new Set(data?.packItems.map((item) => item.location)),
-  );
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -57,10 +50,6 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
     [],
   );
 
-  const allSorts = {
-    category: categories,
-    location: locations,
-  };
   const { data: s3Objects } = api.s3.getObjects.useQuery({
     packId: id,
   });
@@ -117,63 +106,15 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
     };
   }, []);
 
-  if (!data) return <div>404</div>;
+  if (isLoading || !userIsLoaded) {
+    return <div>Loading</div>;
+  }
 
+  if (!data) return void router.push("/");
+
+  if (user && data && data.authorId !== user.id)
+    void router.push(`/pack/${id}`);
   const titleArray = data?.name.split(" ");
-
-  const ItemData = ({ item }: { item: PackItem }) => (
-    <div>
-      {editItem === item.id ? (
-        <UpdatePackItemForm
-          id={item.id}
-          packId={id}
-          oldName={item.name}
-          oldCategory={item.category}
-          oldLocation={item.location}
-          action={() => setEditItem("")}
-        />
-      ) : (
-        <p className="flex ">
-          <>
-            <span
-              onClick={() => deletePackItem({ packId: id, id: item.id })}
-              className="m-2 block w-6 cursor-pointer hover:text-red-400"
-            >
-              <TrashIcon />
-            </span>
-            <span
-              onClick={() => setEditItem(editItem === item.id ? "" : item.id)}
-              className="m-2 block w-5 cursor-pointer hover:text-red-400"
-            >
-              <Pencil2Icon />
-            </span>
-          </>
-          {item.name}
-        </p>
-      )}
-    </div>
-  );
-
-  const itemsByView = (selSort: sortCriteria) =>
-    allSorts[selSort]?.map((sortName) => (
-      <div key={sortName}>
-        <h1 className="drop-shadow-l text-xl font-extrabold text-primary">
-          {sortName ? sortName : "TBD"}
-        </h1>
-        {data.packItems
-          .filter((el) => el[selSort] === sortName)
-          .map((item) => (
-            <ItemData key={item.id} item={item} />
-          ))}
-      </div>
-    ));
-
-  const onTabsClick = () =>
-    setSelectedSort(
-      selectedSort === sortCriteria.category
-        ? sortCriteria.location
-        : sortCriteria.category,
-    );
 
   return (
     <RootLayout>
@@ -190,9 +131,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
         <div className="my-3 flex justify-end">
           <Button onClick={() => router.push(`/pack/${id}`)}>Close Edit</Button>
         </div>
-        {isEditable && s3Objects?.length === 0 && (
-          <StandardDropzone packId={id} />
-        )}
+        {s3Objects?.length === 0 && <StandardDropzone packId={id} />}
         {typeof window !== "undefined" && s3Objects?.[0]?.Key && (
           <Map packId={s3Objects[0]?.Key} />
         )}
@@ -204,24 +143,48 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
             action={() => setOpen(false)}
           />
         </div>
-        <Tabs defaultValue={selectedSort} onClick={onTabsClick}>
-          <div className="flex items-center justify-between">
-            <TabsList>
-              <TabsTrigger value={sortCriteria.category}>
-                Category View
-              </TabsTrigger>
-              <TabsTrigger value={sortCriteria.location}>
-                Location View
-              </TabsTrigger>
-            </TabsList>
-          </div>
-          <TabsContent value={sortCriteria.category}>
-            {itemsByView(sortCriteria.category)}
-          </TabsContent>
-          <TabsContent value={sortCriteria.location}>
-            {itemsByView(sortCriteria.location)}
-          </TabsContent>
-        </Tabs>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Item</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead className="text-right">Delete Item</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.packItems.map((item) =>
+              editItem === item.id ? (
+                <UpdatePackItemForm
+                  key={item.id}
+                  id={item.id}
+                  packId={id}
+                  oldName={item.name}
+                  oldCategory={item.category}
+                  oldLocation={item.location}
+                  action={() => setEditItem("")}
+                />
+              ) : (
+                <TableRow key={item.id} onClick={() => setEditItem(item.id)}>
+                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell>{item.category}</TableCell>
+                  <TableCell>{item.location}</TableCell>
+                  <TableCell className="flex justify-end">
+                    <span
+                      onClick={() =>
+                        deletePackItem({ packId: id, id: item.id })
+                      }
+                      className="m-2 block w-6 cursor-pointer hover:text-red-400"
+                    >
+                      <TrashIcon />
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ),
+            )}
+          </TableBody>
+        </Table>
         <h2>Danger zone</h2>
         <div className="rounded-lg border border-red-300 px-6">
           <h3>Delete the pack</h3>

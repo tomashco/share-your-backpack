@@ -10,6 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { TrashIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { api, displayError } from "@/utils/api";
 import { cn } from "@/utils";
@@ -17,7 +18,7 @@ import { Textarea } from "./ui/textarea";
 import { useToast } from "./ui/use-toast";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { Skeleton } from "./ui/skeleton";
+import { TableCell, TableRow } from "./ui/table";
 
 const itemSchema = z.object({
   name: z.string().min(2, {
@@ -240,56 +241,65 @@ export function UpdatePackItemForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex space-x-2">
-        <div className="flex items-end space-x-3">
+      <TableRow>
+        <TableCell className="font-medium">
           <FormField
             control={form.control}
             name={"name"}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Add new pack items:</FormLabel>
                 <FormControl>
-                  <div className="flex space-x-2">
-                    <Input placeholder={oldName} {...field} />
-                  </div>
+                  <Input placeholder={oldName} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+        </TableCell>
+        <TableCell>
           <FormField
             control={form.control}
             name={"category"}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Category:</FormLabel>
                 <FormControl>
-                  <div className="flex space-x-2">
-                    <Input {...field} />
-                  </div>
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+        </TableCell>
+        <TableCell>
           <FormField
             control={form.control}
             name={"location"}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Location:</FormLabel>
                 <FormControl>
-                  <div className="flex space-x-2">
-                    <Input {...field} />
-                  </div>
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
-        </div>
-      </form>
+        </TableCell>
+        <TableCell className="flex justify-end">
+          <span
+            onClick={
+              () => null
+              // deletePackItem({ packId: id, id: item.id })
+            }
+            className="m-2 block w-6 cursor-pointer hover:text-red-400"
+          >
+            <TrashIcon />
+          </span>
+          <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
+            Submit
+          </Button>
+        </TableCell>
+      </TableRow>
+      {/* </form> */}
     </Form>
   );
 }

@@ -54,7 +54,6 @@ export const packsRouter = createTRPCRouter({
     const packs = await ctx.prisma.pack.findMany();
     return addUserDataToPosts(packs)
   }),
-
   getById: publicProcedure.input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const pack = await ctx.prisma.pack.findUnique({
