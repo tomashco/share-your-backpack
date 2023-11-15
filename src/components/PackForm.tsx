@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { Control, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,6 @@ import {
 import { TrashIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { api, displayError } from "@/utils/api";
-import { cn } from "@/utils";
 import { Textarea } from "./ui/textarea";
 import { useToast } from "./ui/use-toast";
 import { useRouter } from "next/router";
@@ -27,8 +26,6 @@ const itemSchema = z.object({
   category: z.string().optional(),
   location: z.string().optional(),
 });
-
-const packItemSchema = z.object({ packItems: z.array(itemSchema) });
 
 const packSchema = z.object({
   name: z.string().min(2, {
@@ -198,215 +195,90 @@ export function UpdatePackInfo({
   );
 }
 
-export function UpdatePackItemForm({
+export function AddUpdatePackItemForm({
   id,
   packId,
-  oldName,
-  oldCategory,
-  oldLocation,
+  formControl,
+  oldName = "",
+  oldCategory = "",
+  oldLocation = "",
   action,
 }: {
-  id: string;
+  id?: string;
   packId: string;
-  oldName: string;
-  oldCategory: string;
-  oldLocation: string;
-  action: () => void;
+  formControl: Control<
+    {
+      name: string;
+      category?: string | undefined;
+      location?: string | undefined;
+    },
+    unknown
+  >;
+  oldName?: string;
+  oldCategory?: string;
+  oldLocation?: string;
+  action?: () => void;
 }) {
-  const ctx = api.useContext();
-  const { toast } = useToast();
-
-  const { mutate: updatePackItem } = api.packs.editPackItem.useMutation({
-    onSuccess: () => {
-      void ctx.packs.getById.invalidate();
-      form.reset();
-      action();
-    },
-    onError: (e) => displayError(e, toast),
-  });
-
-  const form = useForm<z.infer<typeof itemSchema>>({
-    resolver: zodResolver(itemSchema),
-    defaultValues: {
-      name: oldName,
-      category: oldCategory,
-      location: oldLocation,
-    },
-    mode: "onChange",
-  });
-
-  function onSubmit({ name, category, location }: z.infer<typeof itemSchema>) {
-    updatePackItem({ packId, id, name, category, location });
-  }
+  // form.handleSubmit(onSubmit)
 
   return (
-    <Form {...form}>
-      <TableRow>
-        <TableCell className="font-medium">
-          <FormField
-            control={form.control}
-            name={"name"}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input placeholder={oldName} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </TableCell>
-        <TableCell>
-          <FormField
-            control={form.control}
-            name={"category"}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </TableCell>
-        <TableCell>
-          <FormField
-            control={form.control}
-            name={"location"}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </TableCell>
-        <TableCell className="flex justify-end">
-          <span
-            onClick={
-              () => null
-              // deletePackItem({ packId: id, id: item.id })
-            }
-            className="m-2 block w-6 cursor-pointer hover:text-red-400"
-          >
-            <TrashIcon />
-          </span>
-          <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
+    <TableRow>
+      <TableCell className="font-medium">
+        <FormField
+          control={formControl}
+          name={"name"}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder={oldName} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </TableCell>
+      <TableCell>
+        <FormField
+          control={formControl}
+          name={"category"}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </TableCell>
+      <TableCell>
+        <FormField
+          control={formControl}
+          name={"location"}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </TableCell>
+      <TableCell className="flex justify-end">
+        <span
+          onClick={
+            () => null
+            // deletePackItem({ packId: id, id: item.id })
+          }
+          className="m-2 block w-6 cursor-pointer hover:text-red-400"
+        >
+          <TrashIcon />
+        </span>
+        {/* <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
             Submit
-          </Button>
-        </TableCell>
-      </TableRow>
-      {/* </form> */}
-    </Form>
-  );
-}
-
-export function AddPackItemsForm({ id }: { id: string }) {
-  const ctx = api.useContext();
-  const { toast } = useToast();
-
-  const { mutate: addPackItems } = api.packs.addPackItems.useMutation({
-    onSuccess: () => {
-      void ctx.packs.getById.invalidate();
-    },
-    onError: (e) => displayError(e, toast),
-  });
-
-  const form = useForm<z.infer<typeof packItemSchema>>({
-    resolver: zodResolver(packItemSchema),
-    defaultValues: {
-      packItems: [],
-    },
-    mode: "onChange",
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    name: "packItems",
-    control: form.control,
-  });
-
-  function onSubmit(values: z.infer<typeof packItemSchema>) {
-    addPackItems({ id, packItems: values.packItems });
-    form.reset({ packItems: [{ name: "" }] });
-  }
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div>
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex items-end space-x-2">
-              <FormField
-                control={form.control}
-                name={`packItems.${index}.name`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className={cn(index !== 0 && "sr-only")}>
-                      Add new pack items:
-                    </FormLabel>
-                    <FormControl>
-                      <div className="flex space-x-2">
-                        <Input {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`packItems.${index}.category`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className={cn(index !== 0 && "sr-only")}>
-                      Category:
-                    </FormLabel>
-                    <FormControl>
-                      <div className="flex space-x-2">
-                        <Input {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`packItems.${index}.location`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className={cn(index !== 0 && "sr-only")}>
-                      Location:
-                    </FormLabel>
-                    <FormControl>
-                      <div className="flex space-x-2">
-                        <Input {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="button" onClick={() => remove(index)}>
-                Remove
-              </Button>
-            </div>
-          ))}
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="mt-2"
-            onClick={() => append({ name: "", category: "", location: "" })}
-          >
-            Add pack item
-          </Button>
-        </div>
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
+          </Button> */}
+      </TableCell>
+    </TableRow>
   );
 }

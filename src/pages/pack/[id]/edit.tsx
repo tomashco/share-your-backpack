@@ -1,9 +1,9 @@
 import type { GetStaticProps, NextPage } from "next";
-import { api } from "@/utils/api";
+import { api, displayError } from "@/utils/api";
 import RootLayout from "@/components/layouts/RootLayout";
 import { Header } from "@/components/header";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
-import { UpdatePackInfo, UpdatePackItemForm } from "@/components/PackForm";
+import { UpdatePackInfo, AddUpdatePackItemForm } from "@/components/PackForm";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { TrashIcon } from "@radix-ui/react-icons";
@@ -29,6 +29,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Form } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   const [editItem, setEditItem] = useState("");
@@ -40,6 +44,31 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+
+  const itemSchema = z.object({
+    name: z.string().min(2, {
+      message: "pack name must be at least 2 characters.",
+    }),
+    category: z.string().optional(),
+    location: z.string().optional(),
+  });
+
+  const { mutate: updatePackItem } = api.packs.editPackItem.useMutation({
+    onSuccess: () => {
+      void ctx.packs.getById.invalidate();
+      form.reset();
+      // if (action) action();
+    },
+    onError: (e) => displayError(e, toast),
+  });
+  const { mutate: addPackItem } = api.packs.addPackItems.useMutation({
+    onSuccess: () => {
+      void ctx.packs.getById.invalidate();
+      form.reset();
+      // if (action) action();
+    },
+    onError: (e) => displayError(e, toast),
+  });
 
   const Map = useMemo(
     () =>
@@ -92,6 +121,16 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
     },
   });
 
+  const form = useForm<z.infer<typeof itemSchema>>({
+    resolver: zodResolver(itemSchema),
+    defaultValues: {
+      name: "",
+      category: "",
+      location: "",
+    },
+    mode: "onBlur",
+  });
+
   // use Escape to close the Edit Item or edit Title
   useEffect(() => {
     const keyDownHandler = (event: KeyboardEvent) => {
@@ -115,6 +154,17 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   if (user && data && data.authorId !== user.id)
     void router.push(`/pack/${id}`);
   const titleArray = data?.name.split(" ");
+
+  const handleBlur = ({
+    name,
+    category,
+    location,
+  }: z.infer<typeof itemSchema>) => {
+    console.log(name, category, location);
+    if (id)
+      updatePackItem({ packId: id, id: editItem, name, category, location });
+    else addPackItem({ id, packItems: [{ name, category, location }] });
+  };
 
   return (
     <RootLayout>
@@ -144,47 +194,59 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
           />
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Item</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead className="text-right">Delete Item</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.packItems.map((item) =>
-              editItem === item.id ? (
-                <UpdatePackItemForm
-                  key={item.id}
-                  id={item.id}
-                  packId={id}
-                  oldName={item.name}
-                  oldCategory={item.category}
-                  oldLocation={item.location}
-                  action={() => setEditItem("")}
-                />
-              ) : (
-                <TableRow key={item.id} onClick={() => setEditItem(item.id)}>
-                  <TableCell className="font-medium">{item.name}</TableCell>
-                  <TableCell>{item.category}</TableCell>
-                  <TableCell>{item.location}</TableCell>
-                  <TableCell className="flex justify-end">
-                    <span
-                      onClick={() =>
-                        deletePackItem({ packId: id, id: item.id })
-                      }
-                      className="m-2 block w-6 cursor-pointer hover:text-red-400"
-                    >
-                      <TrashIcon />
-                    </span>
-                  </TableCell>
+        <Form {...form}>
+          <form
+            // style={{ visibility: "hidden" }}
+            onBlur={form.handleSubmit(handleBlur)}
+          >
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Item</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead className="text-right">Delete Item</TableHead>
                 </TableRow>
-              ),
-            )}
-          </TableBody>
-        </Table>
+              </TableHeader>
+              <TableBody>
+                {data.packItems.map((item) =>
+                  editItem === item.id ? (
+                    <AddUpdatePackItemForm
+                      key={item.id}
+                      id={item.id}
+                      packId={id}
+                      formControl={form.control}
+                      oldName={item.name}
+                      oldCategory={item.category}
+                      oldLocation={item.location}
+                      action={() => setEditItem("")}
+                    />
+                  ) : (
+                    <TableRow
+                      key={item.id}
+                      onClick={() => setEditItem(item.id)}
+                    >
+                      <TableCell className="font-medium">{item.name}</TableCell>
+                      <TableCell>{item.category}</TableCell>
+                      <TableCell>{item.location}</TableCell>
+                      <TableCell className="flex justify-end">
+                        <span
+                          onClick={() =>
+                            deletePackItem({ packId: id, id: item.id })
+                          }
+                          className="m-2 block w-6 cursor-pointer hover:text-red-400"
+                        >
+                          <TrashIcon />
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ),
+                )}
+                {/* <AddUpdatePackItemForm packId={id} /> */}
+              </TableBody>
+            </Table>
+          </form>
+        </Form>
         <h2>Danger zone</h2>
         <div className="rounded-lg border border-red-300 px-6">
           <h3>Delete the pack</h3>
