@@ -3,7 +3,7 @@ import { api } from "@/utils/api";
 import RootLayout from "@/components/layouts/RootLayout";
 import { Header } from "@/components/header";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
-import { UpdatePackInfo, UpdatePackItemForm } from "@/components/PackForm";
+import { AddUpdatePackItemForm, UpdatePackInfo } from "@/components/PackForm";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { TrashIcon } from "@radix-ui/react-icons";
@@ -21,14 +21,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { StandardDropzone } from "@/components/StandardDropzone";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
   const [editItem, setEditItem] = useState("");
@@ -144,19 +136,27 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
           />
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Item</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead className="text-right">Delete Item</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        <div id="table">
+          <div id="table-header">
+            <div id="table-row" className="flex justify-between">
+              <div id="table-head" className="w-full">
+                Item
+              </div>
+              <div id="table-head" className="w-full">
+                Category
+              </div>
+              <div id="table-head" className="w-full">
+                Location
+              </div>
+              <div id="table-head" className="flex w-full justify-end">
+                Delete item
+              </div>
+            </div>
+          </div>
+          <div id="table-body">
             {data.packItems.map((item) =>
               editItem === item.id ? (
-                <UpdatePackItemForm
+                <AddUpdatePackItemForm
                   key={item.id}
                   id={item.id}
                   packId={id}
@@ -166,11 +166,22 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
                   action={() => setEditItem("")}
                 />
               ) : (
-                <TableRow key={item.id} onClick={() => setEditItem(item.id)}>
-                  <TableCell className="font-medium">{item.name}</TableCell>
-                  <TableCell>{item.category}</TableCell>
-                  <TableCell>{item.location}</TableCell>
-                  <TableCell className="flex justify-end">
+                <div
+                  id="table-row"
+                  className="flex justify-between"
+                  key={item.id}
+                  onClick={() => setEditItem(item.id)}
+                >
+                  <div id="table-cell" className="w-full">
+                    {item.name}
+                  </div>
+                  <div id="table-cell" className="w-full">
+                    {item.category}
+                  </div>
+                  <div id="table-cell" className="w-full">
+                    {item.location}
+                  </div>
+                  <div id="table-cell" className="flex w-full justify-end">
                     <span
                       onClick={() =>
                         deletePackItem({ packId: id, id: item.id })
@@ -179,12 +190,24 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
                     >
                       <TrashIcon />
                     </span>
-                  </TableCell>
-                </TableRow>
+                  </div>
+                </div>
               ),
             )}
-          </TableBody>
-        </Table>
+            <div className="mt-3">
+              {editItem === "NEW_ITEM" ? (
+                <AddUpdatePackItemForm packId={id} />
+              ) : (
+                <Button
+                  variant={"secondary"}
+                  onClick={() => setEditItem("NEW_ITEM")}
+                >
+                  Add new item
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
         <h2>Danger zone</h2>
         <div className="rounded-lg border border-red-300 px-6">
           <h3>Delete the pack</h3>

@@ -10,7 +10,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { TrashIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { api, displayError } from "@/utils/api";
 import { cn } from "@/utils";
@@ -18,7 +17,6 @@ import { Textarea } from "./ui/textarea";
 import { useToast } from "./ui/use-toast";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { TableCell, TableRow } from "./ui/table";
 
 const itemSchema = z.object({
   name: z.string().min(2, {
@@ -198,29 +196,38 @@ export function UpdatePackInfo({
   );
 }
 
-export function UpdatePackItemForm({
+export function AddUpdatePackItemForm({
   id,
   packId,
-  oldName,
-  oldCategory,
-  oldLocation,
+  oldName = "",
+  oldCategory = "",
+  oldLocation = "",
   action,
 }: {
-  id: string;
+  id?: string;
   packId: string;
-  oldName: string;
-  oldCategory: string;
-  oldLocation: string;
-  action: () => void;
+  oldName?: string;
+  oldCategory?: string;
+  oldLocation?: string;
+  action?: () => void;
 }) {
   const ctx = api.useContext();
+
   const { toast } = useToast();
 
   const { mutate: updatePackItem } = api.packs.editPackItem.useMutation({
     onSuccess: () => {
       void ctx.packs.getById.invalidate();
       form.reset();
-      action();
+      if (action) action();
+    },
+    onError: (e) => displayError(e, toast),
+  });
+  const { mutate: addPackItem } = api.packs.addPackItems.useMutation({
+    onSuccess: () => {
+      void ctx.packs.getById.invalidate();
+      form.reset();
+      if (action) action();
     },
     onError: (e) => displayError(e, toast),
   });
@@ -235,71 +242,68 @@ export function UpdatePackItemForm({
     mode: "onChange",
   });
 
-  function onSubmit({ name, category, location }: z.infer<typeof itemSchema>) {
-    updatePackItem({ packId, id, name, category, location });
-  }
+  const onSubmit = ({
+    name,
+    category,
+    location,
+  }: z.infer<typeof itemSchema>) => {
+    if (id) updatePackItem({ packId, id, name, category, location });
+    else addPackItem({ id: packId, packItems: [{ name, category, location }] });
+  };
 
   return (
     <Form {...form}>
-      <TableRow>
-        <TableCell className="font-medium">
-          <FormField
-            control={form.control}
-            name={"name"}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input placeholder={oldName} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </TableCell>
-        <TableCell>
-          <FormField
-            control={form.control}
-            name={"category"}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </TableCell>
-        <TableCell>
-          <FormField
-            control={form.control}
-            name={"location"}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </TableCell>
-        <TableCell className="flex justify-end">
-          <span
-            onClick={
-              () => null
-              // deletePackItem({ packId: id, id: item.id })
-            }
-            className="m-2 block w-6 cursor-pointer hover:text-red-400"
-          >
-            <TrashIcon />
-          </span>
-          <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
-            Submit
-          </Button>
-        </TableCell>
-      </TableRow>
-      {/* </form> */}
+      <form>
+        <div id="table-row" className="flex justify-between">
+          <div id="table-cell" className="w-full pr-3">
+            <FormField
+              control={form.control}
+              name={"name"}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input placeholder={oldName} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div id="table-cell" className="w-full pr-3">
+            <FormField
+              control={form.control}
+              name={"category"}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div id="table-cell" className="w-full pr-3">
+            <FormField
+              control={form.control}
+              name={"location"}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div id="table-cell" className="flex w-full justify-end">
+            <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
+              {id ? "Edit" : "Add"}
+            </Button>
+          </div>
+        </div>
+      </form>
     </Form>
   );
 }
