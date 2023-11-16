@@ -135,76 +135,88 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
             action={() => setOpen(false)}
           />
         </div>
-
-        <div id="table">
-          <div id="table-header">
-            <div id="table-row" className="flex justify-between">
-              <div id="table-head" className="w-full">
-                Item
-              </div>
-              <div id="table-head" className="w-full">
-                Category
-              </div>
-              <div id="table-head" className="w-full">
-                Location
-              </div>
-              <div id="table-head" className="flex w-full justify-end">
-                Delete item
+        <div className="overflow-scroll">
+          <div id="table" className="min-w-[600px]">
+            <div id="table-header">
+              <div id="table-row" className="flex justify-between">
+                <div id="table-head" className="w-full">
+                  <h3>Item</h3>
+                </div>
+                <div id="table-head" className="w-full">
+                  <h3>Category</h3>
+                </div>
+                <div id="table-head" className="w-full">
+                  <h3>Location</h3>
+                </div>
+                <div id="table-head" className="flex w-full justify-end">
+                  <h3>Delete item</h3>
+                </div>
               </div>
             </div>
-          </div>
-          <div id="table-body">
-            {data.packItems.map((item) =>
-              editItem === item.id ? (
-                <AddUpdatePackItemForm
-                  key={item.id}
-                  id={item.id}
-                  packId={id}
-                  oldName={item.name}
-                  oldCategory={item.category}
-                  oldLocation={item.location}
-                  action={() => setEditItem("")}
-                />
-              ) : (
-                <div
-                  id="table-row"
-                  className="flex justify-between"
-                  key={item.id}
-                  onClick={() => setEditItem(item.id)}
-                >
-                  <div id="table-cell" className="w-full">
-                    {item.name}
-                  </div>
-                  <div id="table-cell" className="w-full">
-                    {item.category}
-                  </div>
-                  <div id="table-cell" className="w-full">
-                    {item.location}
-                  </div>
-                  <div id="table-cell" className="flex w-full justify-end">
-                    <span
-                      onClick={() =>
-                        deletePackItem({ packId: id, id: item.id })
-                      }
-                      className="m-2 block w-6 cursor-pointer hover:text-red-400"
+            <div id="table-body">
+              {data.packItems.map((item) =>
+                editItem === item.id ? (
+                  <AddUpdatePackItemForm
+                    key={item.id}
+                    id={item.id}
+                    packId={id}
+                    oldName={item.name}
+                    oldCategory={item.category}
+                    oldLocation={item.location}
+                    action={() => setEditItem("")}
+                  />
+                ) : (
+                  <div
+                    id="table-row"
+                    className="flex justify-between"
+                    key={item.id}
+                  >
+                    <div
+                      id="table-cell"
+                      className="w-full"
+                      onClick={() => setEditItem(item.id)}
                     >
-                      <TrashIcon />
-                    </span>
+                      {item.name}
+                    </div>
+                    <div
+                      id="table-cell"
+                      className="w-full"
+                      onClick={() => setEditItem(item.id)}
+                    >
+                      {item.category}
+                    </div>
+                    <div
+                      id="table-cell"
+                      className="w-full"
+                      onClick={() => setEditItem(item.id)}
+                    >
+                      {item.location}
+                    </div>
+                    <div id="table-cell" className="flex w-full justify-end">
+                      <span
+                        onClick={() =>
+                          deletePackItem({ packId: id, id: item.id })
+                        }
+                        className="m-2 block w-6 cursor-pointer hover:text-red-400"
+                      >
+                        <TrashIcon />
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ),
-            )}
-            <div className="mt-3">
-              {editItem === "NEW_ITEM" ? (
-                <AddUpdatePackItemForm packId={id} />
-              ) : (
-                <Button
-                  variant={"secondary"}
-                  onClick={() => setEditItem("NEW_ITEM")}
-                >
-                  Add new item
-                </Button>
+                ),
               )}
+              <div className="my-3">
+                {editItem === "NEW_ITEM" ? (
+                  <AddUpdatePackItemForm packId={id} />
+                ) : (
+                  <Button
+                    variant={"secondary"}
+                    onClick={() => setEditItem("NEW_ITEM")}
+                  >
+                    Add new item
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -218,7 +230,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
               <DialogTrigger>
                 <Button
                   variant="secondary"
-                  className="bg-red-300 text-white hover:bg-red-500"
+                  className="ml-3 w-[120px] bg-red-300 text-white hover:bg-red-500"
                 >
                   Delete Pack
                 </Button>

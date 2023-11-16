@@ -3,7 +3,7 @@ import { api } from "@/utils/api";
 import RootLayout from "@/components/layouts/RootLayout";
 import { Header } from "@/components/header";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { type PackItem } from "@prisma/client";
 import PageLayout from "@/components/layouts/PageLayout";
@@ -110,7 +110,7 @@ const SinglePackPage: NextPage<{ id: string }> = ({ id }) => {
         {s3Objects?.[0]?.Key && <Map packId={s3Objects[0]?.Key} />}
         <p>{data.description}</p>
         <Tabs defaultValue={selectedSort} onClick={onTabsClick}>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between">
             <TabsList>
               <TabsTrigger value={sortCriteria.category}>
                 Category View
